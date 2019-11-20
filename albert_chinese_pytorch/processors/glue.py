@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """ GLUE processors and helpers """
-
+import Terry_toolkit as tkit
 import logging
 import os
 import torch
@@ -135,6 +135,76 @@ def glue_convert_examples_to_features(examples, tokenizer,
                           input_len=input_len))
     return features
 
+# class ＴerryProcessor(DataProcessor):
+#     """Processor for the MRPC data set (GLUE version)."""
+
+#     def get_train_examples(self, data_dir):
+#         """See base class."""
+#         logger.info("LOOKING AT {}".format(os.path.join(data_dir, "train.tsv")))
+#         return self._create_examples(
+#             self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
+
+#     def get_dev_examples(self, data_dir):
+#         """See base class."""
+#         return self._create_examples(
+#             self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev")
+
+#     def get_labels(self):
+#         """See base class."""
+#         return ["0", "1"]
+
+#     def _create_examples(self, lines, set_type):
+#         """Creates examples for the training and dev sets."""
+#         examples = []
+#         for (i, line) in enumerate(lines):
+#             if i == 0:
+#                 continue
+#             guid = "%s-%s" % (set_type, i)
+#             text_a = line[3]
+#             text_b = line[4]
+#             label = line[0]
+#             examples.append(
+#                 InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
+#         return examples
+
+
+class TerryProcessor(DataProcessor):
+    """Processor for 自定义数据集 10分类"""
+
+    def get_example_from_tensor_dict(self, tensor_dict):
+        """See base class."""
+        return InputExample(tensor_dict['idx'].numpy(),
+                            tensor_dict['sentence'].numpy().decode('utf-8'),
+                            None,
+                            str(tensor_dict['label'].numpy()))
+
+    def get_train_examples(self, data_dir):
+        """See base class."""
+        file_path = os.path.join(data_dir,"train.json")
+        tjosn=tkit.Json(file_path=file_path).load()
+        return self._create_examples(tjosn, 'train')
+    def get_dev_examples(self, data_dir):
+        """See base class."""
+        file_path = os.path.join(data_dir,"dev.json")
+        tjosn=tkit.Json(file_path=file_path).load()
+        return self._create_examples(tjosn, 'dev')
+
+    def get_labels(self):
+        """See base class."""
+        return ["0", "1", "2", "3","4","5","6","7","8","9"]
+ 
+
+    def _create_examples(self, lines, set_type):
+        """Creates examples for the training and dev sets."""
+        examples = []
+        for (i, line) in enumerate(lines):
+            guid = "%s-%s" % (set_type, i)
+            text_a = line['sentence']
+            label = line['label']
+            # print("label",label)
+            examples.append(
+                InputExample(guid=guid, text_a=text_a, text_b=None, label=str(label)))
+        return examples
 
 class MrpcProcessor(DataProcessor):
     """Processor for the MRPC data set (GLUE version)."""
@@ -639,6 +709,7 @@ class WnliProcessor(DataProcessor):
 glue_tasks_num_labels = {
     "mnli": 3,
     "mrpc": 2,
+    "terry": 2,
     "sst-2": 2,
     "sts-b": 1,
     "qqp": 2,
@@ -653,6 +724,7 @@ glue_tasks_num_labels = {
 glue_processors = {
     "cola": ColaProcessor,
     "mnli": MnliProcessor,
+    "terry": TerryProcessor,
     "mnli-mm": MnliMismatchedProcessor,
     "mrpc": MrpcProcessor,
     "sst-2": Sst2Processor,
@@ -669,6 +741,7 @@ glue_processors = {
 
 glue_output_modes = {
     "cola": "classification",
+    "terry": "classification",
     "mnli": "classification",
     "mnli-mm": "classification",
     "mrpc": "classification",
