@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="utf-8" />
+  <!-- Required meta tags -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  
+  <link rel="stylesheet" href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <title>数据分类标记</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/editormd.css" />
+  <!-- <link rel="shortcut icon" href="https://pandao.github.io/editor.md/favicon.ico" type="image/x-icon" /> -->
+  <style>
+    div#plist {
+      /* 预测列表样式 */
+      position: absolute;
+
+      z-index: 9999;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 3px;
+      border-left: 6px solid rgb(10, 155, 238);
+      font-size: 1.2em;
+      color: #333;
+      max-width: 40%;
+      box-shadow: 1px 2px 3px#333;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    div#plist li {
+      list-style: none;
+      padding: 5px;
+      border-bottom: 1px dotted #ccc;
+      min-width: 150px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 0.9em;
+
+    }
+
+    div#plist li:nth-child(even) {
+      background: #ddd
+    }
+
+    div#plist li:hover {
+
+      background: rgb(7, 97, 156);
+      color: #fff;
+    }
+
+    .b {
+      color: firebrick
+    }
+
+    .tips {
+      width: 90%;
+      display: block;
+      margin: auto;
+    }
+
+    #settings-box .modal-body,    #settings-box .modal-header ,    #settings-box .modal-footer {
+
+margin: 0 30%;
+background: 
+
+#333;
+
+}
+.pre-shot {
+
+  cursor: auto !important;
+
+color: #333 !important;
+
+border-bottom: 2px
+#067cbf solid !important;
+
+background:
+#0a9bee;
+
+color:
+#fff !important;
+}
+.it.active{
+  background:#2673ec !important;
+  color:#fff !important
+}
+.btn.active{
+  background:rgb(117, 214, 37) !important
+}
+  </style>
+</head>
+
+<body>
+  <div id="layout">
+    <header>
+      <h1>数据分类标记</h1>
+    </header>
+ 
+  <script src="/static/js/jquery.min.js"></script>
+ 
+  <script type="text/javascript">
+    var testEditor;
+
+    $(function () {
+
+
+      function setlabel(id, label) {
+        $.post("/json/addlabel", {
+          'id': id, 'label': label
+
+        })
+          .done(function (data) {
+            console.log(data)
+            console.log("提交成功!")
+            $("h1").html("提交成功,加载下一个...")
+            setTimeout(function(){
+　　location.replace(location.href);
+          },1000);
+          });
+      }
+
+
+
+      $("#dono").click(function () {
+        var id = $("#text_id").attr('data_id');
+        setlabel(id, 0)
+
+      });
+      $("#doyes").click(function () {
+        var id =$("#text_id").attr('data_id');
+        setlabel(id, 1)
+
+      });
+
+
+      $(document).keydown(function (event) {
+ 
+ switch(event.keyCode) {
+    case 38:
+       console.log("up")
+
+
+       break;
+     case 40:
+       console.log("down")
+ 
+       break;
+     case 37:
+       console.log("向左选择不是")
+       var id = $("#text_id").attr('data_id');
+        setlabel(id, 0)
+  
+       break;
+       case 39:
+       console.log("向右选择是")
+       var id = $("#text_id").attr('data_id');
+        setlabel(id, 1)
+  
+       break;
+    default:
+    
+       console.log("点击",event.keyCode)
+} 
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+});
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+  </script>
+  <div class="container">
+    <!-- Content here -->
+
+
+
+<h1>{{title}}</h1>
+<div class="row">
+<dl>
+    <dt class="">
+        id
+  </dt>
+  <dd id="text_id" data_id="{{id}}">  {{id}}</dd>
+  <dt class="">
+        label
+  </dt>
+  <dd>    {{label}}(Ai: {{pre_label}})(1为是,0为 不是)</dd>
+  <dt class="">
+      author
+</dt>
+<dd>    {{author}}</dd>
+<dt class="">
+    url
+</dt>
+<dd>    {{url}}</dd>
+</dl>
+  </div>
+  <h2>  是不是宠物内容</h2>
+<div class="row">
+    <div class="btn-group">
+   
+      {% if  pre_label ==1 %}
+ <button id="dono" type="button" data_id="{{id}}" class=" btn btn-default settings">不是(快捷键 左方向键)</button>
+ <button id='doyes' type="button"  data_id="{{id}}" class="active btn btn-default">是(快捷键 右方向键) </button>
+ {% else %}
+ <button id="dono" type="button" data_id="{{id}}" class="active btn btn-default settings">不是(快捷键 左方向键)</button>
+ <button id='doyes' type="button"  data_id="{{id}}" class=" btn btn-default">是 (快捷键 右方向键)</button>
+ {% endif %}
+</div>
+</div>
+<h2> 内容</h2>
+<div class="row">
+  {{content}}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+  <!-- 预测提示end -->
+</body>
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+  integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"
+  integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+</html>

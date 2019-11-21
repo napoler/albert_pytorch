@@ -201,9 +201,9 @@ class TerryProcessor(DataProcessor):
             guid = "%s-%s" % (set_type, i)
             text_a = line['sentence']
             label = line['label']
-            # print("label",label)
+            print("label",label)
             examples.append(
-                InputExample(guid=guid, text_a=text_a, text_b=None, label=str(label)))
+                InputExample(guid=guid, text_a=str(text_a), text_b=None, label=str(label)))
         return examples
 
 class MrpcProcessor(DataProcessor):

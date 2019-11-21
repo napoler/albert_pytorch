@@ -1,5 +1,5 @@
 CURRENT_DIR=`pwd`
-export BERT_BASE_DIR=$CURRENT_DIR/prev_trained_model/albert_tiny
+export BERT_BASE_DIR=$CURRENT_DIR/prev_trained_model/terry_output
 export DATA_DIR=$CURRENT_DIR/dataset
 export OUTPUR_DIR=$CURRENT_DIR/outputs
 TASK_NAME="terry"
@@ -12,11 +12,11 @@ python run_classifier.py \
   --do_eval \
   --do_lower_case \
   --data_dir=$DATA_DIR/${TASK_NAME}/ \
-  --max_seq_length=128 \
-  --per_gpu_train_batch_size=256 \
+  --max_seq_length=512 \
+  --per_gpu_train_batch_size=32 \
   --per_gpu_eval_batch_size=64 \
   --learning_rate=1e-4 \
-  --num_train_epochs=5.0 \
+  --num_train_epochs=60.0 \
   --logging_steps=3731 \
   --save_steps=3731 \
   --output_dir=$OUTPUR_DIR/${TASK_NAME}_output/ \
