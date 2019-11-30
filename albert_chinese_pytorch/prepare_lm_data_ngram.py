@@ -313,4 +313,8 @@ python prepare_lm_data_ngram.py \
     --data_name=albert \
     --max_ngram=3 \
     --do_data
+
+python prepare_lm_data_ngram.py --data_dir=dataset/ --vocab_path=/mnt/data/dev/github/albert_pytorch/albert_pytorch/albert_chinese_pytorch/prev_trained_model/albert_tiny/vocab.txt    --output_dir=outputs/    --data_name=albert    --max_ngram=3 --do_data
+
+
 '''

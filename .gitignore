@@ -5,8 +5,11 @@ __pycache__/
 
 *.so
 albert_chinese_pytorch/dataset/
-
+albert_chinese_pytorch/model/t
 albert_chinese_pytorch/outputs/
+albert_chinese_pytorch/prev_trained_model/terry_output
+
+
 # Distribution / packaging
 .Python
 build/

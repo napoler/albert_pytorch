@@ -26,21 +26,21 @@ import torch
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler, TensorDataset
 from torch.utils.data.distributed import DistributedSampler
 
-from model.modeling_albert import BertConfig, AlbertForSequenceClassification
-from model.tokenization_bert import BertTokenizer
-from model.file_utils import WEIGHTS_NAME
-from model.optimization import AdamW, WarmupLinearSchedule
+from .model.modeling_albert import BertConfig, AlbertForSequenceClassification
+from .model.tokenization_bert import BertTokenizer
+# from .model.file_utils import WEIGHTS_NAME
+# from .model.optimization import AdamW, WarmupLinearSchedule
 
-from metrics.glue_compute_metrics import compute_metrics
-from processors import glue_output_modes as output_modes
+# from .metrics.glue_compute_metrics import compute_metrics
+# from .processors import glue_output_modes as output_modes
 
-from processors import glue_processors as processors
-from processors import glue_convert_examples_to_features as convert_examples_to_features
-from processors import collate_fn
+# from .processors import glue_processors as processors
+# from .processors import glue_convert_examples_to_features as convert_examples_to_features
+# from .processors import collate_fn
 
-from tools.common import seed_everything
-from tools.common import init_logger, logger
-from callback.progressbar import ProgressBar
+# from .tools.common import seed_everything
+# from tools.common import init_logger, logger
+# from callback.progressbar import ProgressBar
 
 ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in (BertConfig,)), ())
 MODEL_CLASSES = {
@@ -65,6 +65,7 @@ class classify:
         这里进行预测结果
         >>>pre(text)
         """
+        text=text[:self.max_length]
 
         inputs = self.tokenizer.encode_plus(text,'',   add_special_tokens=True, max_length=self.max_length)
     

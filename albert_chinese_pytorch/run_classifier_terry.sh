@@ -15,7 +15,7 @@ python run_classifier.py \
   --max_seq_length=512 \
   --per_gpu_train_batch_size=32 \
   --per_gpu_eval_batch_size=64 \
-  --learning_rate=1e-4 \
+  --learning_rate=1e-8 \
   --num_train_epochs=60.0 \
   --logging_steps=3731 \
   --save_steps=3731 \

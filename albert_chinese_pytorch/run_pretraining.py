@@ -1,3 +1,8 @@
+"""
+自己从头训练使用这个
+
+"""
+
 import torch
 import json
 import time
@@ -358,10 +363,14 @@ if __name__ == '__main__':
 '''
 python run_pretraining.py \
     --data_dir=dataset/ \
+    -- model_path=prev_trained_model/albert_tiny/ \
     --vocab_path=configs/vocab.txt \
     --data_name=albert \
     --config_path=configs/albert_config_base.json \
-    --output_dir=outputs/ \
+    --output_dir=outputs/t \
     --data_name=albert \
     --share_type=all
+
+python run_pretraining.py    --data_dir=dataset    -- model_path=prev_trained_model/albert_tiny/ --vocab_path=prev_trained_model/albert_tiny/vocab.txt --data_name=albert  --config_path=prev_trained_model/albert_tiny/albert_config_base.json    --output_dir=outputs/t    --data_name=albert --share_type=all
+# python prepare_lm_data_mask.py --data_dir=dataset/ --vocab_path=/mnt/data/dev/github/albert_pytorch/albert_pytorch/albert_chinese_pytorch/prev_trained_model/albert_tiny/vocab.txt    --output_dir=outputs/   --do_data
 '''

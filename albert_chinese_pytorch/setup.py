@@ -14,17 +14,22 @@ def read_file(filename):
 def read_requirements(filename):
     return [line.strip() for line in read_file(filename).splitlines()
             if not line.startswith('#')]
+long_description="""
+这是一个分类包
 
+"""
 setup(
     name='terry_classify',
-    version='0.0.1.1',
+    version='0.0.1.5',
     description='albert的分类',
     author='Terry Chan',
     author_email='napoler2008@gmail.com',
     url='https://github.com/napoler/albert_pytorch',
     # install_requires=read_requirements('requirements.txt'),  # 指定需要安装的依赖
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     install_requires=[
-        'Terry-toolkit==0.0.1.7.3',
+        'Terry_toolkit==0.0.1.7.2',
         'Flask==1.1.1',
         'transformers==2.1.1'
 
@@ -67,7 +72,10 @@ setup(
     # ],
 
     #install_requires=['jieba'])
+"""
+python3 setup.py sdist
+#python3 setup.py install
+python3 setup.py sdist upload
 
-# python3 setup.py sdist
-# #python3 setup.py install
-# python3 setup.py sdist upload
+
+"""

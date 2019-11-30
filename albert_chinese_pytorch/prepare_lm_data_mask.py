@@ -1,3 +1,7 @@
+"""
+生成mask训练数据
+
+"""
 import os
 import json
 import random
@@ -289,5 +293,8 @@ if __name__ == '__main__':
     main()
 
 '''
+
+python prepare_lm_data_mask.py --data_dir=dataset/ --vocab_path=/mnt/data/dev/github/albert_pytorch/albert_pytorch/albert_chinese_pytorch/prev_trained_model/albert_tiny/vocab.txt    --output_dir=outputs/   --do_data
+
 
 '''
