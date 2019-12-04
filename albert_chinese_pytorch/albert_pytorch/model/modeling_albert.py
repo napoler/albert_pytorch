@@ -36,6 +36,7 @@ ALBERT_PRETRAINED_MODEL_ARCHIVE_MAP = {
     'albert-xlarge-zh': "",
     'albert-large-zh': "",
     'albert-base-zh': "",
+    'albert-tiny': "",
 }
 
 def load_tf_weights_in_albert(model, config, tf_checkpoint_path):

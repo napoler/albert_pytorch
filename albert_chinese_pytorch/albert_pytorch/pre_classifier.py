@@ -28,6 +28,7 @@ from torch.utils.data.distributed import DistributedSampler
 
 from .model.modeling_albert import BertConfig, AlbertForSequenceClassification
 from .model.tokenization_bert import BertTokenizer
+from.utils import *
 # from .model.file_utils import WEIGHTS_NAME
 # from .model.optimization import AdamW, WarmupLinearSchedule
 
@@ -42,10 +43,52 @@ from .model.tokenization_bert import BertTokenizer
 # from tools.common import init_logger, logger
 # from callback.progressbar import ProgressBar
 
-ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in (BertConfig,)), ())
-MODEL_CLASSES = {
-    'albert': (BertConfig, AlbertForSequenceClassification, BertTokenizer)
-}
+
+
+class Plus:
+    """
+    各种快速函数
+    """
+    def __init__(self):
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        pass
+    def load_model(self,class_name,model_path):
+        """
+        精简加载模型流程
+        class_name     'AlbertForSequenceClassification'
+                                    'AlbertForMaskedLM'
+                                    'AlbertModel'
+                                    'AlbertForNextSentencePrediction'
+                                    'AlbertForMultipleChoice'
+                                    'AlbertForTokenClassification'
+                                    'AlbertForQuestionAnswering'
+        model_path 模型储存的路径   
+        """
+        model_name_or_path= model_path
+        config_class, model_class, tokenizer_class = MODEL_CLASSES[class_name]
+        tokenizer = tokenizer_class.from_pretrained(model_path,
+                                                    do_lower_case=False)
+        model = model_class.from_pretrained(model_path)
+        model =model.to(self.device)
+        return model,tokenizer,config_class
+
+
+    def encode(self,text,tokenizer,max_length=512):
+        """
+        tokenizer 字典
+        输入文字自动转换成tensor 并且使用自动尝试使用gpu
+        input_ids, token_type_ids
+        """
+        inputs = tokenizer.encode_plus(text,'',   add_special_tokens=True, max_length=max_length)
+        input_ids, token_type_ids = inputs["input_ids"], inputs["token_type_ids"]
+        input_ids = torch.tensor(input_ids).unsqueeze(0)  # Batch size 1  # Batch size 1
+        token_type_ids = torch.tensor(token_type_ids).unsqueeze(0)  # Batch size 1  # Batch size 1
+        # if torch.cuda.is_available():
+        input_ids=input_ids.to(self.device)
+        token_type_ids=token_type_ids.to(self.device)
+        return input_ids, token_type_ids
+        
+
 
 class classify:
     def __init__(self, model_name_or_path='outputs/terry_output',max_length=512):
@@ -56,29 +99,16 @@ class classify:
         self.max_length = max_length
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print("device",self.device)
-        config_class, model_class, tokenizer_class = MODEL_CLASSES['albert']
-        self.tokenizer = tokenizer_class.from_pretrained(self.model_name_or_path,
-                                                    do_lower_case=False)
-        self.model = model_class.from_pretrained(self.model_name_or_path)
+        self.model,self.tokenizer,self.config_class=Plus().load_model(class_name="AlbertForSequenceClassification",model_path=self.model_name_or_path)
     def pre(self,text):
         """
         这里进行预测结果
         >>>pre(text)
         """
-        text=text[:self.max_length]
-
-        inputs = self.tokenizer.encode_plus(text,'',   add_special_tokens=True, max_length=self.max_length)
-    
-        # input_ids = torch.tensor(tokenizer.encode(text)).unsqueeze(0)  # Batch size 1
-        # input_ids = torch.tensor(input_ids)  # Batch size 1
-        input_ids, token_type_ids = inputs["input_ids"], inputs["token_type_ids"]
-        # print("input_ids",input_ids)
-        # print(inputs)
-        input_ids = torch.tensor(input_ids).unsqueeze(0)  # Batch size 1  # Batch size 1
+        input_ids, token_type_ids=Plus().encode(text=text,tokenizer=self.tokenizer,max_length=self.max_length)
         outputs = self.model(input_ids)
         self.model.to(self.device)
         # print(outputs)
-        
         seq_relationship_scores = outputs[0] #对应的概率信息
         # print(seq_relationship_scores)
         # print( torch.argmax(seq_relationship_scores).item())
