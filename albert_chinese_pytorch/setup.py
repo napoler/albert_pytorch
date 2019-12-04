@@ -15,13 +15,14 @@ def read_requirements(filename):
     return [line.strip() for line in read_file(filename).splitlines()
             if not line.startswith('#')]
 long_description="""
-这是一个分类包
+这是一个包
+albert_pytorch
 
 """
 setup(
-    name='terry_classify',
-    version='0.0.1.5',
-    description='albert的分类',
+    name='albert_pytorch',
+    version='0.0.1.0',
+    description='albert_pytorch',
     author='Terry Chan',
     author_email='napoler2008@gmail.com',
     url='https://github.com/napoler/albert_pytorch',
@@ -35,7 +36,7 @@ setup(
 
 
     ],
-    packages=['terry_classify'])
+    packages=['albert_pytorch'])
     # install_requires=[
     #     # asn1crypto==0.24.0
     #     # beautifulsoup4==4.7.1

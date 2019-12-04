@@ -110,20 +110,37 @@ def glue_convert_examples_to_features(examples, tokenizer,
                                                                                             max_length)
         assert len(token_type_ids) == max_length, "Error with input length {} vs {}".format(len(token_type_ids),
                                                                                             max_length)
-
-        if output_mode == "classification":
-            label = label_map[example.label]
-        elif output_mode == "regression":
+        # print(label_map)
+        # print("label",example.label)
+        # #ner需要修改 label应该预先产生就可以了
+        # print('example.label',example.label)
+        # print('example.label type',type(label_map))
+        # for i in label_map.keys():
+        #     print(type(i))
+        if output_mode == "classification": #分类
+            try:
+                label = label_map[example.label]
+            except KeyError:
+                # print("Error",KeyError)
+                label=label_map.get(int(example.label))
+                
+        elif output_mode == "regression": #回归
             label = float(example.label)
+        elif output_mode == "terryner": #回归
+            label =tokenizer.convert_tokens_to_ids(example.label.split(' ')) + ([pad_token_segment_id] * padding_length)
+            # print(label)
+            # label = float(example.label)
         else:
             raise KeyError(output_mode)
-
+        # print("input_ids",input_ids[0])
+        # print("label",label)
         if ex_index < 5:
             logger.info("*** Example ***")
             logger.info("guid: %s" % (example.guid))
             logger.info("input_ids: %s" % " ".join([str(x) for x in input_ids]))
             logger.info("attention_mask: %s" % " ".join([str(x) for x in attention_mask]))
             logger.info("token_type_ids: %s" % " ".join([str(x) for x in token_type_ids]))
+            # logger.info("label: %s" % " ".join([str(x) for x in label]))
             logger.info("label: %s (id = %d)" % (example.label, label))
             logger.info("input length: %d" % (input_len))
 
@@ -166,6 +183,150 @@ def glue_convert_examples_to_features(examples, tokenizer,
 #             examples.append(
 #                 InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
 #         return examples
+class TerryNerProcessor(DataProcessor):
+    """Processor for 实体识别"""
+    def get_train_examples(self, data_dir):
+        return self._create_example(
+            self._read_data(os.path.join(data_dir, "train.txt")), "train"
+        )
+
+    def get_dev_examples(self, data_dir):
+        return self._create_example(
+            self._read_data(os.path.join(data_dir, "dev.txt")), "dev"
+        )
+
+    def get_test_examples(self,data_dir):
+        return self._create_example(
+            self._read_data(os.path.join(data_dir, "test.txt")), "test")
+
+
+    def get_labels(self):
+        # return ["O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "[CLS]","[SEP]"]
+        return ["O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "X","[CLS]","[SEP]"]
+
+    def _create_example(self, lines, set_type):
+        examples = []
+        for (i, line) in enumerate(lines):
+            guid = "%s-%s" % (set_type, i)
+            # print(line)
+            #   text = tokenization.convert_to_unicode(line[1])
+            text_a=line[1]
+            label = line[0]
+        #     text_b=line[1]
+        #    label = 1
+            # print(len(text_a))
+            # print(len(label))
+            #   label = tokenization.convert_to_unicode(line[0])
+            examples.append(InputExample(guid=guid, text_a=str(text_a), text_b=None,label=label))
+        return examples
+
+    def _read_data(cls, input_file):
+        """Reads a BIO data."""
+        with open(input_file) as f:
+            lines = []
+            words = []
+            labels = []
+            for line in f:
+                contends = line.strip()
+                word = line.strip().split(' ')[0]
+                label = line.strip().split(' ')[-1]
+                if contends.startswith("-DOCSTART-"):
+                    words.append('')
+                    continue
+                # if len(contends) == 0 and words[-1] == '。':
+                if len(contends) == 0:
+                    l = ' '.join([label for label in labels if len(label) > 0])
+                    w = ' '.join([word for word in words if len(word) > 0])
+                    lines.append([l, w])
+                    words = []
+                    labels = []
+                    continue
+                words.append(word)
+                labels.append(label)
+            return lines
+
+class TerrykgProcessor(DataProcessor):
+    """Processor for  Terry知识抽取训练　使用百度训练集https://dataset-bj.cdn.bcebos.com/sked/train_data.json"""
+    def __init__(self):
+        self.data_dir="dataset/terrykg"
+
+
+    def get_example_from_tensor_dict(self, tensor_dict):
+        """See base class."""
+        return InputExample(tensor_dict['idx'].numpy(),
+                            tensor_dict['sentence'].numpy().decode('utf-8'),
+                            None,
+                            str(tensor_dict['label'].numpy()))
+
+    def get_train_examples(self, data_dir):
+        """See base class."""
+        self.data_dir=data_dir
+        file_path = os.path.join(self.data_dir,"train.json")
+        # bulid_labels(self)
+        tjosn=tkit.Json(file_path=file_path).auto_load()
+        return self._create_examples(tjosn, 'train')
+    def get_dev_examples(self, data_dir):
+        """See base class."""
+        self.data_dir=data_dir
+        file_path = os.path.join(self.data_dir,"dev.json")
+        # bulid_labels(self,data_dir)
+        tjosn=tkit.Json(file_path=file_path).auto_load()
+        return self._create_examples(tjosn, 'dev')
+
+    def bulid_labels(self):
+        """See base class　基于数据构建ｌａｂｅｌ词典."""
+        # print("self.data_dir",self.data_dir)
+        file_path = os.path.join(self.data_dir,"all_50_schemas.json")
+        data=tkit.Json(file_path=file_path).auto_load()
+        # tjson=tkit.Json(file_path=os.path.join('data/all_50_schemas.json'))
+        # data= tjson.auto_load()
+        # print(len(data))
+        labels=[]
+        for i,it in enumerate(data):
+            labels.append(it['predicate'])
+        # labels = list(set(labels))  
+        labels = {}.fromkeys(labels).keys()
+        # print(labels)
+        labels_dict ={"NULL":0}
+        for i,it in enumerate(labels,1):
+            labels_dict[it]=str(i)
+        # print(labels_dict)
+        return labels_dict
+    def get_labels(self):
+        """See base class."""
+        labels_dict=self.bulid_labels()
+        # for i,it in enumerate(labels_dict):
+        # print(range(0,len(labels_dict))
+        label=[]
+        for i in range(len(labels_dict)):
+            label.append(i)
+        print('label',label)
+
+        return label
+    def _create_examples(self, lines, set_type):
+        """Creates examples for the training and dev sets."""
+        labels_dict=self.bulid_labels()
+        examples = []
+        for (i, line) in enumerate(lines):
+            
+            text= line['text']
+            for n in line['spo_list']:
+                guid = "%s-%s-%s" % (set_type, i,n)
+                text_a=text+" [SEP]  "+n['object']+" [SEP]  "+n['subject']
+                # print(n['predicate'])
+                label = labels_dict[n['predicate']] #这里获取关系对应的编号
+                # print("label",label)
+                examples.append(
+                    InputExample(guid=guid, text_a=str(text_a), text_b=None, label=str(label)))
+        print("语料数量",len(examples))
+        return examples
+# TerrykgProcessor().get_labels()
+
+
+
+
+
+
 
 
 class TerryProcessor(DataProcessor):
@@ -201,9 +362,11 @@ class TerryProcessor(DataProcessor):
             guid = "%s-%s" % (set_type, i)
             text_a = line['sentence']
             label = line['label']
-            print("label",label)
+            # print("label",label)
             examples.append(
                 InputExample(guid=guid, text_a=str(text_a), text_b=None, label=str(label)))
+            print("语料数量",len(examples))
+            
         return examples
 
 class MrpcProcessor(DataProcessor):
@@ -725,6 +888,8 @@ glue_processors = {
     "cola": ColaProcessor,
     "mnli": MnliProcessor,
     "terry": TerryProcessor,
+    "terrykg": TerrykgProcessor,
+    "terryner": TerryNerProcessor,
     "mnli-mm": MnliMismatchedProcessor,
     "mrpc": MrpcProcessor,
     "sst-2": Sst2Processor,
@@ -742,6 +907,8 @@ glue_processors = {
 glue_output_modes = {
     "cola": "classification",
     "terry": "classification",
+    "terrykg": "classification",
+    "terryner": "terryner",
     "mnli": "classification",
     "mnli-mm": "classification",
     "mrpc": "classification",
