@@ -26,21 +26,21 @@ import torch
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler, TensorDataset
 from torch.utils.data.distributed import DistributedSampler
 
-from model.modeling_albert import BertConfig, AlbertForSequenceClassification
-from model.tokenization_bert import BertTokenizer
-from model.file_utils import WEIGHTS_NAME
-from model.optimization import AdamW, WarmupLinearSchedule
+from albert_pytorch  import BertConfig, AlbertForSequenceClassification
+from albert_pytorch import BertTokenizer
+from albert_pytorch import WEIGHTS_NAME
+from albert_pytorch  import AdamW, WarmupLinearSchedule
 
-from metrics.glue_compute_metrics import compute_metrics
-from processors import glue_output_modes as output_modes
+from albert_pytorch  import compute_metrics
+from albert_pytorch  import glue_output_modes as output_modes
 
-from processors import glue_processors as processors
-from processors import glue_convert_examples_to_features as convert_examples_to_features
-from processors import collate_fn
+from albert_pytorch  import glue_processors as processors
+from albert_pytorch import glue_convert_examples_to_features as convert_examples_to_features
+from albert_pytorch import collate_fn
 
-from tools.common import seed_everything
-from tools.common import init_logger, logger
-from callback.progressbar import ProgressBar
+from albert_pytorch  import seed_everything
+from albert_pytorch import init_logger, logger
+from albert_pytorch import ProgressBar
 
 ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in (BertConfig,)), ())
 MODEL_CLASSES = {

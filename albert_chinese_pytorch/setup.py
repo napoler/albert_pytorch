@@ -18,10 +18,15 @@ long_description="""
 这是一个包
 albert_pytorch
 
+
+# fix
+修正提交错误
+
+
 """
 setup(
     name='albert_pytorch',
-    version='0.0.1.0',
+    version='0.0.1.1',
     description='albert_pytorch',
     author='Terry Chan',
     author_email='napoler2008@gmail.com',
