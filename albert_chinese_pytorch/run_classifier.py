@@ -41,11 +41,26 @@ from albert_pytorch import collate_fn
 from albert_pytorch  import seed_everything
 from albert_pytorch import init_logger, logger
 from albert_pytorch import ProgressBar
+import time
+
+import matplotlib.pyplot as plt
+import Terry_toolkit as tkit
 
 ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in (BertConfig,)), ())
 MODEL_CLASSES = {
     'albert': (BertConfig, AlbertForSequenceClassification, BertTokenizer)
 }
+
+
+def save_loss(loss,name="default"):
+    """
+    保存loss 方便以后绘图分析
+    """
+    file_path="dataset/"+name+".json"
+    tjosn=tkit.Json(file_path=file_path)
+    one={"time":time.time(), 'loss':loss }
+    tjosn.save([one])
+
 
 def train(args, train_dataset, model, tokenizer):
     """ Train the model """
@@ -101,7 +116,20 @@ def train(args, train_dataset, model, tokenizer):
     tr_loss, logging_loss = 0.0, 0.0
     model.zero_grad()
     seed_everything(args.seed)  # Added here for reproductibility (even between python 2 and 3)
-    for _ in range(int(args.num_train_epochs)):
+
+
+
+
+    # xs=[]
+    # ys= []
+    # # 生成画布
+    # plt.figure(figsize=(8, 6), dpi=80)
+    # # 打开交互模式
+    # plt.ion()
+
+
+    for i in range(int(args.num_train_epochs)):
+        logger.info("  epoch  = %d", i)
         pbar = ProgressBar(n_total=len(train_dataloader), desc='Training')
         for step, batch in enumerate(train_dataloader):
             model.train()
@@ -152,6 +180,22 @@ def train(args, train_dataset, model, tokenizer):
                 logger.info("Saving model checkpoint to %s", output_dir)
                 tokenizer.save_vocabulary(vocab_path=output_dir)
             pbar(step, {'loss': loss.item()})
+
+        save_loss(loss=loss.item(),name=args.task_name)
+        # #绘制图形
+        # xs.append(i)
+        # ys.append(loss.item())
+        # # 清除原有图像
+        # plt.cla()
+
+        # # 设定标题等
+        # # plt.title("动态曲线图", fontproperties=myfont)
+        # plt.grid(True)
+        # plt.plot(xs, ys)
+        # # 暂停
+        # plt.pause(0.001)
+        # plt.show()
+
         print(" ")
         if 'cuda' in str(args.device):
             torch.cuda.empty_cache()
@@ -194,6 +238,7 @@ def evaluate(args, model, tokenizer, prefix=""):
                 if args.model_type != 'distilbert':
                     inputs['token_type_ids'] = batch[2] if args.model_type in ['bert', 'xlnet', 'albert',
                                                                                'roberta'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
+                # print("inputs")
                 outputs = model(**inputs)
                 tmp_eval_loss, logits = outputs[:2]
                 eval_loss += tmp_eval_loss.mean().item()
@@ -319,7 +364,7 @@ def load_and_cache_examples(args, task, tokenizer, data_type='train'):
 
     if args.local_rank == 0 and not evaluate:
         torch.distributed.barrier()  # Make sure only the first process in distributed training process the dataset, and the others will use the cache
-    print('features',features[0])
+    # print('features',features[0])
     # Convert to Tensors and build dataset
     all_input_ids = torch.tensor([f.input_ids for f in features], dtype=torch.long)
     all_attention_mask = torch.tensor([f.attention_mask for f in features], dtype=torch.long)

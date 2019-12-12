@@ -2,8 +2,137 @@
 # 测试分类效国
 
 from albert_pytorch import classify
+import Terry_toolkit as tkit
+import numpy as np
+import matplotlib.pyplot as plt
+from tqdm import tqdm
+import time
+
+def bulid_labels():
+    file_path="dataset/terry_rank/labels.json"
+    tjosn=tkit.Json(file_path=file_path)
+    data=[{"label": 0, "sentence": "小于2000"},{"label": 1, "sentence":"2000-1万"},{"label": 2, "sentence": "大于1万"}]
+    tjosn.save(data)
+def dev():
+    file_path="dataset/terry_rank/dev.json"
+    tjosn=tkit.Json(file_path=file_path).auto_load()
+    n=0
+    all=1
+    data=[]
+    xs=[]
+    ys= []
+    # 生成画布
+    plt.figure(figsize=(8, 6), dpi=80)
+    # 打开交互模式
+    plt.ion()
+
+
+    for item in tqdm(tjosn):
+
+        # text="我把小狗宠坏了，现在的小狗已经长大，一直追着兔子跑！"
+        text=item['sentence']
+        tclass=classify(model_name_or_path='outputs/terry_rank_output')
+        if tclass.pre(text)<3:
+            # print(item)
+            # print("预测结果",tclass.pre(text))
+            if tclass.pre(text)==item["label"]:
+                n=n+1
+            # print("总共预测",all)
+            # print("准确数目",n)
+            # print("准确率",n/all)
+        # data.append((all,n))
+        xs.append(all)
+        ys.append(n/all)
+        if all%10==0:
+                    # 清除原有图像
+            plt.cla()
+
+            # 设定标题等
+            # plt.title("动态曲线图", fontproperties=myfont)
+            plt.grid(True)
+            plt.plot(xs, ys)
+            # 暂停
+            plt.pause(0.1)
+            plt.show()
+        #     plot_dev(xs,ys)
+        all=all+1
+    # plot_dev(xs,ys)
+    print("####"*30)
+    print("总共预测",all)
+    print("准确数目",n)
+    print("准确率",n/all)
+ 
+
+    # 关闭交互模式
+    plt.ioff()
+    # 图形显示
+    plt.show()    
+def loss_plot(task_name):
+    file_path="dataset/"+task_name+".json"
+ 
+    n=0
+    all=1
+    data=[]
+
+    # 生成画布
+    plt.figure(figsize=(8, 6), dpi=80)
+    # 打开交互模式
+    plt.ion()
+    for x in range(100000*10000):
+        tjosn=tkit.Json(file_path=file_path).auto_load()
+        i=0
+        xs=[]
+        ys= []
+        p_xs=[]
+        p_ys=[]  
+        for item in tqdm(tjosn):
+
+            # text="我把小狗宠坏了，现在的小狗已经长大，一直追着兔子跑！"
+            # text=item['sentence']
+
+            xs.append(i)
+            ys.append(item['loss'])
+            i=i+1
+        if ys==p_ys:
+            pass
+        else:
+            # 清除原有图像
+            plt.cla()
+            # 设定标题等
+            # plt.title("动态曲线图", fontproperties=myfont)
+            plt.grid(True)
+            plt.plot(xs, ys)
+            # 暂停
+            plt.pause(0.1)
+            plt.show()
+            p_xs=xs
+            p_ys=ys
+        time.sleep(1)
+    # 关闭交互模式
+    plt.ioff()
+    # 图形显示
+    plt.show()    
+
+def plot_dev(xs,ys):
+    
+    print("显示图表")
+    plt.figure(1) # 创建图表1
+    # 打开交互模式
+    plt.ion()
+    # 清除原有图像
+    plt.cla()
+    # ax1 = plt.subplot(211) # 在图表2中创建子图1
+    # for x,y in data:
+    plt.plot(xs, ys)
+        # plt.sca(ax1)   #❷ # 选择图表2的子图1
+    plt.show()
+
 if __name__ == "__main__":
-    text="养龟之前要想好的问题\n想养龟之前先问自己能否承受寂寞。恐怕没有人会想到十年后，二十年，甚至五十年后的今天这条龟降临何方。龟龟虽小，养起来真是一个足够大的包袱，没有充分的思想准备。理解龟龟的生长其实养龟最辛苦的时期是小龟饲养后的第二年，第一年一般兴趣高涨，对于龟龟的照顾无微不至，看着龟龟生长迅速，看着龟龟天天长大，心里的满足溢于言表，但养了几年后，龟龟的生长开始变缓，体长每月1公分甚至不到的变化，经常使龟友开始耐不住寂寞，开始埋怨生长的缓慢，其时兴趣与耐心正在一点点失去。但在这个时期，自己的爱龟刚刚成年，正在向成熟进发，爱龟的一天天的熟悉自己，幼稚的身躯慢慢挂上凝重的颜色，如此的过程不正是养龟人期待的过程，不正是成功的体验？不要被别人的意见所左右很多朋友将自己的龟贴出来供大家赏评，赞美的话是最喜欢听的（无论谁，除非是受虐狂），但龟友很多意见有好自然也有不好，要有心里承受能力，否则，最好不贴，别人一说这是烂甲，这品相不好，这是隆背，马上对爱龟的热爱从顶峰掉到谷底，回家怎么看自己的龟龟怎么不顺眼，完了，不久的将来，这条龟一定不存在于这个窝。养龟不是为别人养的，自己的龟只属于自己，让别人说去吧，能把一条巴西养十年以上值得佩服。喜新厌旧要不得交流的时间多了，自己的鉴赏力提高，也见过很多好龟，于是缅陆龟养一段时间换印星，印星换小苏，小苏换靴脚，又养缅星，还有更好的辐射，喜新厌旧使自己变成了一个快乐的饲养员，不停的饲养着，没有一刻的宁静，也慢慢消耗了自己的耐心，因为没有人喜欢终日耕种没有收获，养龟的乐趣是在漫长龟龟成熟的过程中体验。图片来源于网络"
-    tclass=classify(model_name_or_path='outputs/terry_output') 
-    print("预测结果",tclass.pre(text))
+    # dev()
+ 
+    loss_plot("terry")
+     
     # pre(text)
+
+    # for item in tjosn:
+    #     print(item)

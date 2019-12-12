@@ -29,65 +29,7 @@ from torch.utils.data.distributed import DistributedSampler
 from .model.modeling_albert import BertConfig, AlbertForSequenceClassification
 from .model.tokenization_bert import BertTokenizer
 from.utils import *
-# from .model.file_utils import WEIGHTS_NAME
-# from .model.optimization import AdamW, WarmupLinearSchedule
-
-# from .metrics.glue_compute_metrics import compute_metrics
-# from .processors import glue_output_modes as output_modes
-
-# from .processors import glue_processors as processors
-# from .processors import glue_convert_examples_to_features as convert_examples_to_features
-# from .processors import collate_fn
-
-# from .tools.common import seed_everything
-# from tools.common import init_logger, logger
-# from callback.progressbar import ProgressBar
-
-
-
-class Plus:
-    """
-    各种快速函数
-    """
-    def __init__(self):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        pass
-    def load_model(self,class_name,model_path):
-        """
-        精简加载模型流程
-        class_name     'AlbertForSequenceClassification'
-                                    'AlbertForMaskedLM'
-                                    'AlbertModel'
-                                    'AlbertForNextSentencePrediction'
-                                    'AlbertForMultipleChoice'
-                                    'AlbertForTokenClassification'
-                                    'AlbertForQuestionAnswering'
-        model_path 模型储存的路径   
-        """
-        model_name_or_path= model_path
-        config_class, model_class, tokenizer_class = MODEL_CLASSES[class_name]
-        tokenizer = tokenizer_class.from_pretrained(model_path,
-                                                    do_lower_case=False)
-        model = model_class.from_pretrained(model_path)
-        model =model.to(self.device)
-        return model,tokenizer,config_class
-
-
-    def encode(self,text,tokenizer,max_length=512):
-        """
-        tokenizer 字典
-        输入文字自动转换成tensor 并且使用自动尝试使用gpu
-        input_ids, token_type_ids
-        """
-        inputs = tokenizer.encode_plus(text,'',   add_special_tokens=True, max_length=max_length)
-        input_ids, token_type_ids = inputs["input_ids"], inputs["token_type_ids"]
-        input_ids = torch.tensor(input_ids).unsqueeze(0)  # Batch size 1  # Batch size 1
-        token_type_ids = torch.tensor(token_type_ids).unsqueeze(0)  # Batch size 1  # Batch size 1
-        # if torch.cuda.is_available():
-        input_ids=input_ids.to(self.device)
-        token_type_ids=token_type_ids.to(self.device)
-        return input_ids, token_type_ids
-        
+from .plus import *
 
 
 class classify:
@@ -99,6 +41,7 @@ class classify:
         self.max_length = max_length
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print("device",self.device)
+        #自动加载模型和词典
         self.model,self.tokenizer,self.config_class=Plus().load_model(class_name="AlbertForSequenceClassification",model_path=self.model_name_or_path)
     def pre(self,text):
         """

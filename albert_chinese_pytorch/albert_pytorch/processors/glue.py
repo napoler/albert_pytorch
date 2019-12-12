@@ -300,7 +300,7 @@ class TerrykgProcessor(DataProcessor):
         label=[]
         for i in range(len(labels_dict)):
             label.append(i)
-        print('label',label)
+        # print('label',label)
 
         return label
     def _create_examples(self, lines, set_type):
@@ -318,7 +318,7 @@ class TerrykgProcessor(DataProcessor):
                 # print("label",label)
                 examples.append(
                     InputExample(guid=guid, text_a=str(text_a), text_b=None, label=str(label)))
-        print("语料数量",len(examples))
+        # print("语料数量",len(examples))
         return examples
 # TerrykgProcessor().get_labels()
 
@@ -331,7 +331,9 @@ class TerrykgProcessor(DataProcessor):
 
 class TerryProcessor(DataProcessor):
     """Processor for 自定义数据集 10分类"""
-
+    def __init__(self):
+        self.data_dir='dataset/terry_rank'
+        self.make_labels()
     def get_example_from_tensor_dict(self, tensor_dict):
         """See base class."""
         return InputExample(tensor_dict['idx'].numpy(),
@@ -349,10 +351,18 @@ class TerryProcessor(DataProcessor):
         file_path = os.path.join(data_dir,"dev.json")
         tjosn=tkit.Json(file_path=file_path).load()
         return self._create_examples(tjosn, 'dev')
+    def make_labels(self):
+        tjosn=tkit.Json(file_path=self.data_dir+"/labels.json").auto_load()
+        labels=[]
+        for item in tjosn:
+            labels.append(str(item['label']))
+        self.labels=labels
 
     def get_labels(self):
         """See base class."""
-        return ["0", "1", "2", "3","4","5","6","7","8","9"]
+        # return ["0", "1", "2", "3","4","5","6","7","8","9"]
+        # return ["0", "1", "2", "3","4","5","6","7","8","9"]
+        return self.labels
  
 
     def _create_examples(self, lines, set_type):
@@ -365,7 +375,7 @@ class TerryProcessor(DataProcessor):
             # print("label",label)
             examples.append(
                 InputExample(guid=guid, text_a=str(text_a), text_b=None, label=str(label)))
-            print("语料数量",len(examples))
+            # print("语料数量",len(examples))
             
         return examples
 
