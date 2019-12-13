@@ -72,6 +72,7 @@ do
     fi 
     
     cp outputs/${TASK_NAME}_output/* $BERT_BASE_DIR
+    #  cp outputs/${TASK_NAME}_output/* /content/drive/My\ Drive/fastai-v3/data/albert_pytorch_data/
     echo "休息10s"
     sleep 10
 

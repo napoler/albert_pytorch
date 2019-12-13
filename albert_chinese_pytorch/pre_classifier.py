@@ -128,9 +128,9 @@ def plot_dev(xs,ys):
     plt.show()
 
 if __name__ == "__main__":
-    # dev()
+    dev()
  
-    loss_plot("terry")
+    # loss_plot("terry")
      
     # pre(text)
 
