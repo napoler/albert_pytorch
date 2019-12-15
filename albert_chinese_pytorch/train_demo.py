@@ -3,16 +3,18 @@ from albert_pytorch import *
 def t_classifier():
     model_name_or_path="prev_trained_model/albert_tiny"
     P=Plus()
-    model,tokenizer,config_class=P.load_model(class_name="AlbertForSequenceClassification",model_path=model_name_or_path)
+    P.args['model_name_or_path']="prev_trained_model/albert_tiny"
+    model,tokenizer,config_class=P.load_model(class_name="AlbertForSequenceClassification")
 
     train_dataloader=[{"text":"柯基犬是个狗子","labels":1},{"text":"柯基犬喜欢打架","labels":1},{"text":"哈士奇是个狗子","labels":0}]
     P.args['num_train_epochs']=20
     P.train(train_dataloader=train_dataloader, model=model, tokenizer=tokenizer)
 
 def t_mlm():
-    model_name_or_path="prev_trained_model/albert_tiny"
+
     P=Plus()
-    model,tokenizer,config_class=P.load_model(class_name="AlbertForMaskedLM",model_path=model_name_or_path)
+    P.args['model_name_or_path']="prev_trained_model/albert_tiny"
+    model,tokenizer,config_class=P.load_model(class_name="AlbertForMaskedLM")
 
     train_dataloader=[{"text":"柯基犬是个狗子","labels":1},{"text":"柯基犬喜欢打架","labels":1},{"text":"哈士奇是个狗子","labels":0}]
     # P.args['num_train_epochs']=20
@@ -45,7 +47,8 @@ def t_wire(text):
     """
     model_name_or_path="prev_trained_model/albert_tiny"
     P=Plus()
-    model,tokenizer,config_class=P.load_model(class_name="AlbertForMaskedLM",model_path=model_name_or_path)
+    P.args['model_name_or_path']="prev_trained_model/albert_tiny"
+    model,tokenizer,config_class=P.load_model(class_name="AlbertForMaskedLM")
       
     input_ids = torch.tensor(tokenizer.encode(text+" [MASK]  ")).unsqueeze(0)  # Batch size 1
     outputs = model(input_ids, masked_lm_labels=input_ids)
@@ -78,13 +81,17 @@ def t_ner(text):
     """
     model_name_or_path="prev_trained_model/albert_tiny"
     P=Plus()
-    model,tokenizer,config_class=P.load_model(class_name="AlbertForTokenClassification",model_path=model_name_or_path)
+    P.args['model_name_or_path']="prev_trained_model/albert_tiny"
+    model,tokenizer,config_class=P.load_model(class_name="AlbertForTokenClassification")
       
-    input_ids = torch.tensor(tokenizer.encode(text+" [MASK]  ")).unsqueeze(0)  # Batch size 1
+    # input_ids = torch.tensor(tokenizer.encode(text+" [MASK]  ")).unsqueeze(0)  # Batch size 1
+    input_ids=P.encode_one(text,tokenizer,max_length=512)
+
+    print("input_ids",input_ids)
     labels = torch.tensor([1] * input_ids.size(1)).unsqueeze(0)  # Batch size 1
     outputs = model(input_ids, labels=labels)
     loss, scores = outputs[:2]
-    print(scores[0])
+    # print(scores[0])
     # print(loss)
     # print(seq_relationship_scores)
     # print( torch.argmax(seq_relationship_scores).item())
@@ -92,8 +99,54 @@ def t_ner(text):
     # for i in range(len(t))
     # np.argmax(predictions[i], axis=1).flatten()
     print(torch.argmax(scores[0],axis=1).numpy().tolist())
-    # for s in scores:
-    #     print(torch.argmax(s).item())
     return torch.argmax(scores[0],axis=1).numpy().tolist()
-text="今天将第一个维度消除，也就是将两个[3*4]矩阵只保留一个，因此要在两组中作比较，即将上下两个[3*4]的"
-t_ner(text)
+
+
+
+def get_special_tokens_mask(text):
+    """
+    获取标记的信息
+    """
+    model_name_or_path="prev_trained_model/albert_tiny"
+    P=Plus()
+    P.args['model_name_or_path']="prev_trained_model/albert_tiny"
+    model,tokenizer,config_class=P.load_model(class_name="AlbertForTokenClassification")
+      
+    # input_ids = torch.tensor(tokenizer.encode(text+" [MASK]  ")).unsqueeze(0)  # Batch size 1
+    # input_ids=P.encode_one(text,tokenizer,max_length=512)
+    # input_ids=P.mask(text,tokenizer)
+
+    # print("input_ids",input_ids)
+    # labels = torch.tensor([1] * input_ids.size(1)).unsqueeze(0)  # Batch size 1
+    # outputs = model(input_ids, labels=labels)
+    # loss, scores = outputs[:2]
+    # # print(scores[0])
+    # # print(loss)
+    # # print(seq_relationship_scores)
+    # # print( torch.argmax(seq_relationship_scores).item())
+
+    # # for i in range(len(t))
+    # # np.argmax(predictions[i], axis=1).flatten()
+    # print(torch.argmax(scores[0],axis=1).numpy().tolist())
+    # return torch.argmax(scores[0],axis=1).numpy().tolist()
+
+
+def load_data():
+    P=Plus()
+    P.args['model_name_or_path']="prev_trained_model/albert_tiny"
+    model,tokenizer,config_class=P.load_model(class_name="AlbertForTokenClassification")
+    P.args['max_seq_length']=50
+    # for it in   P.load_data('terry',tokenizer):
+    #     print(it)
+    data=P.load_data('terry',tokenizer)
+    P.train(data, model, tokenizer)
+text="[CLS] 今天将第一个维度消除，也就是将两个[3*4]矩阵只保留一个， [SEP] 因此要在两组中作比较，即将上下两个[3*4]的 [MASK]   [SEP]"
+# t_ner(text)
+
+
+# get_special_tokens_mask(text)
+load_data()
+
+# print(tokenizer.encode(text+" [MASK]  "))
+# P=Plus()
+# P.mask(text)

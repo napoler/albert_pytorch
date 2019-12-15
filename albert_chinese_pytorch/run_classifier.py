@@ -375,9 +375,9 @@ def load_and_cache_examples(args, task, tokenizer, data_type='train'):
         all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
     elif output_mode == "regression":
         all_labels = torch.tensor([f.label for f in features], dtype=torch.float)
-    elif output_mode == "terryner": #回归
-        # all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
-        all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
+    # elif output_mode == "terryner": #回归
+    #     # all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
+    #     all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
 
     # print(all_labels)
     dataset = TensorDataset(all_input_ids, all_attention_mask, all_token_type_ids, all_lens, all_labels)
