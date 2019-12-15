@@ -66,10 +66,12 @@ class Plus:
             'adam_epsilon':1e-8,
             'learning_rate':5e-5,
             'warmup_proportion':0.1,
-            'per_gpu_train_batch_size':200,
-            'train_batch_size':200,
+            'per_gpu_train_batch_size':100,
+            'train_batch_size':100,
             'max_steps':-1,
+            'class_name':'AlbertForSequenceClassification',
             'fp16':False,
+            'model_type':'albert',
             'fp16_opt_level':"O1",
             'max_grad_norm':1.0,
             'local_rank':-1,
@@ -91,7 +93,7 @@ class Plus:
         # model_path=''  
         # self.tokenizer = BertTokenizer.from_pretrained(model_path,   do_lower_case=False)
         pass
-    def load_model(self,class_name,finetuning_task='terry_test'):
+    def load_model(self,finetuning_task='terry_test'):
         """
         精简加载模型流程
         class_name     'AlbertForSequenceClassification'
@@ -105,7 +107,7 @@ class Plus:
         """
         # model_name_or_path= model_path
         
-        config_class, model_class, tokenizer_class = MODEL_CLASSES[class_name]
+        config_class, model_class, tokenizer_class = MODEL_CLASSES[self.args['class_name']]
 
         config = config_class.from_pretrained(self.args['model_name_or_path'],
                                             num_labels=self.args['num_labels'],
@@ -304,36 +306,70 @@ class Plus:
                 
                 model.train()
                 batch = tuple(t.to(self.args['device']) for t in batch)
-                print(batch)
-                # inputs = {'input_ids': batch[0],
-                #           'attention_mask': batch[1],
-                #           'labels': batch[3]}
-                # if args.model_type != 'distilbert':
-                # inputs['token_type_ids'] = batch[2] if args.model_type in ['bert', 'xlnet', 'albert',
-                #                                                                'roberta'] else None  # XLM, DistilBERT don't use segment_ids
-            #    inputs['token_type_ids'] = batch[2]
+                with torch.no_grad():
+                    if self.args['class_name']=='AlbertForSequenceClassification':
+                        inputs = {'input_ids': batch[0],
+                                'attention_mask': batch[1],
+                                'labels': batch[3]}
+                        if args['model_type'] != 'distilbert':
+                            inputs['token_type_ids'] = batch[2] if args['model_type']  in ['bert', 'xlnet', 'albert',
+                                                                                    'roberta'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
+                    elif self.args['class_name']=='AlbertForMaskedLM':  #lm
+                        inputs = {'input_ids': batch[0],
+                                'attention_mask': batch[1],
+                                'masked_lm_labels':batch[0],
+                                # 'labels': batch[3]
+                                }
+                        if args['model_type'] != 'distilbert':
+                            inputs['token_type_ids'] = batch[2] if args['model_type']  in ['bert', 'xlnet', 'albert',
+                                                                                    'roberta'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
+                    elif self.args['class_name']=='AlbertForNextSentencePrediction': #下一句
+                        inputs = {'input_ids': batch[0],
+                                'attention_mask': batch[1],
+                                # 'masked_lm_labels':batch[0],
+                                'next_sentence_label': batch[3] 
+                                }
+                        if args['model_type'] != 'distilbert':
+                            inputs['token_type_ids'] = batch[2] if args['model_type']  in ['bert', 'xlnet', 'albert',
+                                                                                    'roberta'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
 
 
-                input_ids,token_type_ids=Plus().encode(text=batch['text'],tokenizer=tokenizer,max_length=64)
+                                                                                    
+                    elif self.args['class_name']=='AlbertForMultipleChoice': #多分类
+                        inputs = {'input_ids': batch[0],
+                                'attention_mask': batch[1],
+                                'masked_lm_labels':batch[0],
+                                'labels': batch[3]
+                                }
+                        if args['model_type'] != 'distilbert':
+                            inputs['token_type_ids'] = batch[2] if args['model_type']  in ['bert', 'xlnet', 'albert',
+                                                                                    'roberta'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
 
-                # labels_ids,token_labels_ids=Plus().encode(text=str(batch['labels']),tokenizer=tokenizer,max_length=3)      
-                # labels=[batch['labels']]
-                # print(labels)  
-                labels_ids = torch.tensor(int(batch['labels'])) # Batch size 1  # Batch size 1
-                # if torch.cuda.is_available():
-                # input_ids=input_ids.to()
-                inputs = {'input_ids': input_ids,
-                'attention_mask': input_ids,
-                # 'labels': batch['labels'],
-                'labels': labels_ids,
-                "token_type_ids":token_type_ids}
-                # print('inputs',inputs)
-                outputs = model(**inputs)
-                loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
-                # print(loss)
+                    elif self.args['class_name']=='AlbertForTokenClassification': #做ner
+                        inputs = {'input_ids': batch[0],
+                                'attention_mask': batch[1],
+                                'masked_lm_labels':batch[0],
+                                # 'labels': batch[3]
+                                }
+                        if args['model_type'] != 'distilbert':
+                            inputs['token_type_ids'] = batch[2] if args['model_type']  in ['bert', 'xlnet', 'albert',
+                                                                                    'roberta'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
 
-                # if args.n_gpu > 1:
-                #     loss = loss.mean()  # mean() to average on multi-gpu parallel training
+                # #分类
+                # outputs = model(**inputs)
+                # loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
+                #lm
+                # outputs = model(input_ids= batch[0], masked_lm_labels= batch[0])
+                outputs = model(**inputs)   
+                loss, prediction_scores = outputs[:2]
+
+                # outputs = model(input_ids, masked_lm_labels=input_ids)
+                # loss, prediction_scores = outputs[:2]
+
+                print(loss.item())
+
+                if args['n_gpu'] > 1:
+                    loss = loss.mean()  # mean() to average on multi-gpu parallel training
                 if args['gradient_accumulation_steps'] > 1:
                     loss = loss / args['gradient_accumulation_steps']
 

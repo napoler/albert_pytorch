@@ -4,7 +4,8 @@ def t_classifier():
     model_name_or_path="prev_trained_model/albert_tiny"
     P=Plus()
     P.args['model_name_or_path']="prev_trained_model/albert_tiny"
-    model,tokenizer,config_class=P.load_model(class_name="AlbertForSequenceClassification")
+    P.args['class_name']="AlbertForSequenceClassification"
+    model,tokenizer,config_class=P.load_model()
 
     train_dataloader=[{"text":"柯基犬是个狗子","labels":1},{"text":"柯基犬喜欢打架","labels":1},{"text":"哈士奇是个狗子","labels":0}]
     P.args['num_train_epochs']=20
@@ -14,7 +15,8 @@ def t_mlm():
 
     P=Plus()
     P.args['model_name_or_path']="prev_trained_model/albert_tiny"
-    model,tokenizer,config_class=P.load_model(class_name="AlbertForMaskedLM")
+    P.args['class_name']="AlbertForMaskedLM"
+    model,tokenizer,config_class=P.load_model()
 
     train_dataloader=[{"text":"柯基犬是个狗子","labels":1},{"text":"柯基犬喜欢打架","labels":1},{"text":"哈士奇是个狗子","labels":0}]
     # P.args['num_train_epochs']=20
@@ -47,8 +49,9 @@ def t_wire(text):
     """
     model_name_or_path="prev_trained_model/albert_tiny"
     P=Plus()
+    P.args['class_name']="AlbertForMaskedLM"
     P.args['model_name_or_path']="prev_trained_model/albert_tiny"
-    model,tokenizer,config_class=P.load_model(class_name="AlbertForMaskedLM")
+    model,tokenizer,config_class=P.load_model()
       
     input_ids = torch.tensor(tokenizer.encode(text+" [MASK]  ")).unsqueeze(0)  # Batch size 1
     outputs = model(input_ids, masked_lm_labels=input_ids)
@@ -81,8 +84,9 @@ def t_ner(text):
     """
     model_name_or_path="prev_trained_model/albert_tiny"
     P=Plus()
+    P.args['class_name']="AlbertForMaskedLM"
     P.args['model_name_or_path']="prev_trained_model/albert_tiny"
-    model,tokenizer,config_class=P.load_model(class_name="AlbertForTokenClassification")
+    model,tokenizer,config_class=P.load_model()
       
     # input_ids = torch.tensor(tokenizer.encode(text+" [MASK]  ")).unsqueeze(0)  # Batch size 1
     input_ids=P.encode_one(text,tokenizer,max_length=512)
@@ -109,8 +113,9 @@ def get_special_tokens_mask(text):
     """
     model_name_or_path="prev_trained_model/albert_tiny"
     P=Plus()
+    P.args['class_name']="AlbertForTokenClassification"
     P.args['model_name_or_path']="prev_trained_model/albert_tiny"
-    model,tokenizer,config_class=P.load_model(class_name="AlbertForTokenClassification")
+    model,tokenizer,config_class=P.load_model()
       
     # input_ids = torch.tensor(tokenizer.encode(text+" [MASK]  ")).unsqueeze(0)  # Batch size 1
     # input_ids=P.encode_one(text,tokenizer,max_length=512)
@@ -133,8 +138,9 @@ def get_special_tokens_mask(text):
 
 def load_data():
     P=Plus()
+    P.args['class_name']="AlbertForNextSentencePrediction"
     P.args['model_name_or_path']="prev_trained_model/albert_tiny"
-    model,tokenizer,config_class=P.load_model(class_name="AlbertForTokenClassification")
+    model,tokenizer,config_class=P.load_model()
     P.args['max_seq_length']=50
     # for it in   P.load_data('terry',tokenizer):
     #     print(it)
