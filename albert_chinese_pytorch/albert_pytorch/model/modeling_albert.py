@@ -751,6 +751,7 @@ class AlbertForPreTraining(AlbertPreTrainedModel):
                       BERT_START_DOCSTRING, BERT_INPUTS_DOCSTRING)
 class AlbertForMaskedLM(AlbertPreTrainedModel):
     r"""
+        预测mask
         **masked_lm_labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
             Labels for computing the masked language modeling loss.
             Indices should be in ``[-1, 0, ..., config.vocab_size]`` (see ``input_ids`` docstring)
@@ -822,6 +823,7 @@ class AlbertForMaskedLM(AlbertPreTrainedModel):
                       BERT_START_DOCSTRING, BERT_INPUTS_DOCSTRING)
 class AlbertForNextSentencePrediction(AlbertPreTrainedModel):
     r"""
+        预测下一句
         **next_sentence_label**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
             Labels for computing the next sequence prediction (classification) loss. Input should be a sequence pair (see ``input_ids`` docstring)
             Indices should be in ``[0, 1]``.
@@ -885,6 +887,7 @@ class AlbertForNextSentencePrediction(AlbertPreTrainedModel):
                       BERT_START_DOCSTRING, BERT_INPUTS_DOCSTRING)
 class AlbertForSequenceClassification(AlbertPreTrainedModel):
     r"""
+        句子分类
         **labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
             Labels for computing the sequence classification/regression loss.
             Indices should be in ``[0, ..., config.num_labels - 1]``.
@@ -959,6 +962,7 @@ class AlbertForSequenceClassification(AlbertPreTrainedModel):
                       BERT_START_DOCSTRING, BERT_INPUTS_DOCSTRING)
 class AlbertForMultipleChoice(AlbertPreTrainedModel):
     r"""
+        多选择
         **labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
             Labels for computing the multiple choice classification loss.
             Indices should be in ``[0, ..., num_choices]`` where `num_choices` is the size of the second dimension
@@ -1035,6 +1039,7 @@ class AlbertForMultipleChoice(AlbertPreTrainedModel):
                       BERT_START_DOCSTRING, BERT_INPUTS_DOCSTRING)
 class AlbertForTokenClassification(AlbertPreTrainedModel):
     r"""
+        实现ner类似的标记
         **labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
             Labels for computing the token classification loss.
             Indices should be in ``[0, ..., config.num_labels - 1]``.
@@ -1108,6 +1113,7 @@ class AlbertForTokenClassification(AlbertPreTrainedModel):
                       BERT_START_DOCSTRING, BERT_INPUTS_DOCSTRING)
 class AlbertForQuestionAnswering(AlbertPreTrainedModel):
     r"""
+        问答 阅读理解
         **start_positions**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
             Labels for position (index) of the start of the labelled span for computing the token classification loss.
             Positions are clamped to the length of the sequence (`sequence_length`).

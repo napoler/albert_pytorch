@@ -35,6 +35,7 @@ def dev():
         if tclass.pre(text)<3:
             # print(item)
             # print("预测结果",tclass.pre(text))
+            all=all+1
             if tclass.pre(text)==item["label"]:
                 n=n+1
             # print("总共预测",all)
@@ -55,7 +56,7 @@ def dev():
             plt.pause(0.1)
             plt.show()
         #     plot_dev(xs,ys)
-        all=all+1
+        
     # plot_dev(xs,ys)
     print("####"*30)
     print("总共预测",all)
@@ -67,6 +68,84 @@ def dev():
     plt.ioff()
     # 图形显示
     plt.show()    
+
+
+
+def dev_terry():
+    file_path="dataset/terry/dev.json"
+    tjosn=tkit.Json(file_path=file_path).auto_load()
+    n=0
+    all=1
+    data=[]
+    xs=[]
+    ys= []
+    # 生成画布
+    plt.figure(figsize=(8, 6), dpi=80)
+    # 打开交互模式
+    plt.ion()
+
+
+    for item in tqdm(tjosn):
+
+        # text="我把小狗宠坏了，现在的小狗已经长大，一直追着兔子跑！"
+        text=item['sentence']
+        tclass=classify(model_name_or_path='outputs/terry_output')
+        p=tclass.pre(text)
+        if p<3:
+            print(item)
+            print(p)
+            # print("预测结果",tclass.pre(text))
+            all=all+1
+            if tclass.pre(text)==item["label"]:
+                n=n+1
+            # print("总共预测",all)
+            # print("准确数目",n)
+            # print("准确率",n/all)
+        # data.append((all,n))
+        xs.append(all)
+        ys.append(n/all)
+        if all%10==0:
+                    # 清除原有图像
+            plt.cla()
+
+            # 设定标题等
+            # plt.title("动态曲线图", fontproperties=myfont)
+            plt.grid(True)
+            plt.plot(xs, ys)
+            # 暂停
+            plt.pause(0.1)
+            plt.show()
+        #     plot_dev(xs,ys)
+        
+    # plot_dev(xs,ys)
+    print("####"*30)
+    print("总共预测",all)
+    print("准确数目",n)
+    print("准确率",n/all)
+ 
+
+    # 关闭交互模式
+    plt.ioff()
+    # 图形显示
+    plt.show()    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def loss_plot(task_name):
     file_path="dataset/"+task_name+".json"
  
@@ -129,6 +208,7 @@ def plot_dev(xs,ys):
 
 if __name__ == "__main__":
     dev()
+    # dev_terry() #查看terry模型效果
  
     # loss_plot("terry")
      
