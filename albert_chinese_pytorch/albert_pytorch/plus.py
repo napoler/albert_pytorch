@@ -87,13 +87,14 @@ class Plus:
             'model_name_or_path':'',
             'max_seq_length':512,
             'data_dir': 'dataset/terry',
+            'finetuning_task':'terry_test',
             'share_type':'all',
             'num_labels':3,
             'output_dir':"outputs/test"   }
         # model_path=''  
         # self.tokenizer = BertTokenizer.from_pretrained(model_path,   do_lower_case=False)
         pass
-    def load_model(self,finetuning_task='terry_test'):
+    def load_model(self):
         """
         精简加载模型流程
         class_name     'AlbertForSequenceClassification'
@@ -111,7 +112,7 @@ class Plus:
 
         config = config_class.from_pretrained(self.args['model_name_or_path'],
                                             num_labels=self.args['num_labels'],
-                                            finetuning_task=finetuning_task,
+                                            finetuning_task= self.args['finetuning_task'],
                                             share_type=self.args['share_type'])
         # print("config",config)
         tokenizer = tokenizer_class.from_pretrained(self.args['model_name_or_path'],

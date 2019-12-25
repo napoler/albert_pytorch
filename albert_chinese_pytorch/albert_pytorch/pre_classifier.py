@@ -33,7 +33,7 @@ from .plus import *
 
 
 class classify:
-    def __init__(self, model_name_or_path='outputs/terry_output',max_length=512):
+    def __init__(self, model_name_or_path='outputs/terry_output',finetuning_task='finetuning_task',max_length=512):
         """
         使用模型进行分类操作
         """
@@ -42,7 +42,11 @@ class classify:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print("device",self.device)
         #自动加载模型和词典
-        self.model,self.tokenizer,self.config_class=Plus().load_model(class_name="AlbertForSequenceClassification",model_path=self.model_name_or_path)
+        P=Plus()
+        P.args['class_name']="AlbertForSequenceClassification"
+        P.args['model_name_or_path']=model_name_or_path
+        P.args['finetuning_task']=finetuning_task
+        self.model,self.tokenizer,self.config_class=P.load_model()
     def pre(self,text):
         """
         这里进行预测结果

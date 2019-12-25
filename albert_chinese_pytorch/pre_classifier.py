@@ -33,8 +33,8 @@ def dev():
         text=item['sentence']
         tclass=classify(model_name_or_path='prev_trained_model/terry_rank_output')
         if tclass.pre(text)<3:
-            # print(item)
-            # print("预测结果",tclass.pre(text))
+            print(item)
+            print("预测结果",tclass.pre(text))
             all=all+1
             if tclass.pre(text)==item["label"]:
                 n=n+1
