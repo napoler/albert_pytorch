@@ -1,9 +1,0 @@
-# coding=utf-8
-# 测试分类效国
-
-from albert_pytorch import classify
-if __name__ == "__main__":
-    text="养龟之前要想好的问题\n想养龟之前先问自己能否承受寂寞"
-    tclass=classify(model_name_or_path='outputs/terry_rank_output')
-    print("预测结果",tclass.pre(text))
-    # pre(text)

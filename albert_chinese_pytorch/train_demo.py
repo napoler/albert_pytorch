@@ -84,7 +84,7 @@ def t_ner(text):
     """
     model_name_or_path="prev_trained_model/albert_tiny"
     P=Plus()
-    P.args['class_name']="AlbertForMaskedLM"
+    P.args['class_name']="AlbertForTokenClassification"
     P.args['model_name_or_path']="prev_trained_model/albert_tiny"
     model,tokenizer,config_class=P.load_model()
       
@@ -93,6 +93,7 @@ def t_ner(text):
 
     print("input_ids",input_ids)
     labels = torch.tensor([1] * input_ids.size(1)).unsqueeze(0)  # Batch size 1
+    print("labels",labels)
     outputs = model(input_ids, labels=labels)
     loss, scores = outputs[:2]
     # print(scores[0])
@@ -136,23 +137,68 @@ def get_special_tokens_mask(text):
     # return torch.argmax(scores[0],axis=1).numpy().tolist()
 
 
-def load_data():
+
+def t_mlm_train():
+    print("t_mlm_train 训练mlm模型")
+
     P=Plus()
-    P.args['class_name']="AlbertForNextSentencePrediction"
     P.args['model_name_or_path']="prev_trained_model/albert_tiny"
+    P.args['class_name']="AlbertForMaskedLM"
+    model,tokenizer,config_class=P.load_model()
+
+    train_dataloader=[{"text":"柯基犬是个狗子","labels":1},{"text":"柯基犬喜欢打架","labels":1},{"text":"哈士奇是个狗子","labels":0}]
+    data=P.load_and_cache_examples('terry',tokenizer)
+    P.train(train_dataset=data,model=model, tokenizer=tokenizer)
+
+# t_mlm_train()
+
+
+
+# def load_data(task_name='terry'):
+#     P=Plus()
+#     P.args['class_name']="AlbertForMaskedLM"
+#     P.args['model_name_or_path']="prev_trained_model/albert_tiny"
+#     model,tokenizer,config_class=P.load_model()
+#     P.args['max_seq_length']=50
+#     # for all_input_ids, all_attention_mask, all_token_type_ids, all_lens, all_labels in   P.load_data('terry',tokenizer):
+#     #     # print(all_input_ids.numpy().tolist())
+#     #     predicted_tokens = tokenizer.convert_ids_to_tokens(all_input_ids.numpy().tolist())
+#     #     print(predicted_tokens)
+#         # predicted_tokens = tokenizer.convert_ids_to_tokens(all_token_type_ids.numpy().tolist())
+#         # print(predicted_tokens)
+#     data=P.load_data(task_name,tokenizer)
+#     P.train(data, model, tokenizer)
+text="[CLS] 今天将第一个维度消除，也就是将两个[3*4]矩阵只保留一个， [SEP] 因此要在两组中作比较，即将上下两个[3*4]的 [MASK]   [SEP]"
+t_ner(text)
+
+
+def load_data(task_name='terry'):
+    P=Plus()
+    P.args['class_name']="AlbertForTokenClassification"
+    P.args['model_name_or_path']="prev_trained_model/albert_tiny"
+    P.args['data_dir']="dataset/terryner"
     model,tokenizer,config_class=P.load_model()
     P.args['max_seq_length']=50
-    # for it in   P.load_data('terry',tokenizer):
-    #     print(it)
-    data=P.load_data('terry',tokenizer)
-    P.train(data, model, tokenizer)
-text="[CLS] 今天将第一个维度消除，也就是将两个[3*4]矩阵只保留一个， [SEP] 因此要在两组中作比较，即将上下两个[3*4]的 [MASK]   [SEP]"
-# t_ner(text)
+    P.args['num_train_epochs']=10
+    P.args['train_batch_size']=30
+    P.args['num_labels']=10
+    # for all_input_ids, all_attention_mask, all_token_type_ids, all_lens, all_labels in   P.load_data(task_name,tokenizer):
+    #     print("len1",len(all_input_ids))
+    #     print(all_input_ids)
+    #     print("len2",len(all_labels))
+    #     print(all_labels)
+    #     # print(all_input_ids.numpy().tolist())
+    #     predicted_tokens = tokenizer.convert_ids_to_tokens(all_input_ids.numpy().tolist())
+    #     print(predicted_tokens)
+    #     # predicted_tokens = tokenizer.convert_ids_to_tokens(all_token_type_ids.numpy().tolist())
+    #     # print(predicted_tokens)
+    data=P.load_data(task_name,tokenizer)
+    P.train(train_dataset=data, model=model, tokenizer=tokenizer)
 
 
 # get_special_tokens_mask(text)
-load_data()
-
+load_data("terryner")
+ 
 # print(tokenizer.encode(text+" [MASK]  "))
 # P=Plus()
 # P.mask(text)

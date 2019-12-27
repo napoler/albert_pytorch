@@ -21,8 +21,8 @@ from __future__ import print_function
 import argparse
 import torch
 
-from model.modeling_albert import BertConfig, AlbertForPreTraining, load_tf_weights_in_albert
-
+# from model.modeling_albert import BertConfig, AlbertForPreTraining, load_tf_weights_in_albert
+from albert_pytorch import *
 import logging
 
 logging.basicConfig(level=logging.INFO)

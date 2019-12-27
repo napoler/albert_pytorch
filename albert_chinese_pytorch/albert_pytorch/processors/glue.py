@@ -32,6 +32,7 @@ def collate_fn(batch):
     all_input_ids = all_input_ids[:, :max_len]
     all_attention_mask = all_attention_mask[:, :max_len]
     all_token_type_ids = all_token_type_ids[:, :max_len]
+    all_labels = all_labels[:, :max_len]
     return all_input_ids, all_attention_mask, all_token_type_ids, all_labels
 
 
@@ -74,7 +75,8 @@ def glue_convert_examples_to_features(examples, tokenizer,
         if output_mode is None:
             output_mode = glue_output_modes[task]
             logger.info("Using output mode %s for task %s" % (output_mode, task))
-
+        # elif output_mode == "terryner": #回归
+        #     label_dict=processor.get_labels_dict()
     label_map = {label: i for i, label in enumerate(label_list)}
 
     features = []
@@ -117,6 +119,7 @@ def glue_convert_examples_to_features(examples, tokenizer,
         # print('example.label type',type(label_map))
         # for i in label_map.keys():
         #     print(type(i))
+        # print('ids len',len(input_ids))
         if output_mode == "classification": #分类
             try:
                 label = label_map[example.label]
@@ -127,7 +130,23 @@ def glue_convert_examples_to_features(examples, tokenizer,
         elif output_mode == "regression": #回归
             label = float(example.label)
         elif output_mode == "terryner": #回归
-            label =tokenizer.convert_tokens_to_ids(example.label.split(' ')) + ([pad_token_segment_id] * padding_length)
+            # label_dict=processor.get_labels_dict()
+            # label =tokenizer.convert_tokens_to_ids(example.label.split(' ')) + ([pad_token_segment_id] * padding_length)
+            label=[]
+            # label.append(label_map['[CLS]'])
+
+            for it in  example.label.split(' '):
+                label.append(label_map[it])
+            if len(label)>=max_length-2:
+                label=label[:max_length-2]
+            # label.append(label_map['[SEP]'])
+            label=[label_map['[CLS]']]+label+[label_map['[SEP]']]+[0] * padding_length
+            # print('ids len',len(input_ids))
+            # print('len(label)',len(label))
+            # print(label)
+
+
+         
             # print(label)
             # label = float(example.label)
         else:
@@ -141,7 +160,7 @@ def glue_convert_examples_to_features(examples, tokenizer,
             logger.info("attention_mask: %s" % " ".join([str(x) for x in attention_mask]))
             logger.info("token_type_ids: %s" % " ".join([str(x) for x in token_type_ids]))
             # logger.info("label: %s" % " ".join([str(x) for x in label]))
-            logger.info("label: %s (id = %d)" % (example.label, label))
+            # logger.info("label: %s (id = %d)" % (example.label, label))
             logger.info("input length: %d" % (input_len))
 
         features.append(
@@ -203,6 +222,12 @@ class TerryNerProcessor(DataProcessor):
     def get_labels(self):
         # return ["O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "[CLS]","[SEP]"]
         return ["O", "B-PER", "I-PER", "B-ORG", "I-ORG", "B-LOC", "I-LOC", "X","[CLS]","[SEP]"]
+    def get_labels_dict(self):
+        labels={}
+        for i,item in enumerate(self.get_labels()):
+            labels[item] =i
+        return labels
+            
 
     def _create_example(self, lines, set_type):
         examples = []

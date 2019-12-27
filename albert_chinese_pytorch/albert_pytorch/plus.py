@@ -66,8 +66,8 @@ class Plus:
             'adam_epsilon':1e-8,
             'learning_rate':5e-5,
             'warmup_proportion':0.1,
-            'per_gpu_train_batch_size':100,
-            'train_batch_size':100,
+            'per_gpu_train_batch_size':200,
+            'train_batch_size':200,
             'max_steps':-1,
             'class_name':'AlbertForSequenceClassification',
             'fp16':False,
@@ -85,7 +85,7 @@ class Plus:
             'model_type':'albert',
             'data_dir':'',
             'model_name_or_path':'',
-            'max_seq_length':512,
+            'max_seq_length':64,
             'data_dir': 'dataset/terry',
             'finetuning_task':'terry_test',
             'share_type':'all',
@@ -121,6 +121,7 @@ class Plus:
         model =model.to(self.device)
         return model,tokenizer,config_class
 
+    
 
     def encode(self,text,tokenizer,max_length=512):
         """
@@ -231,9 +232,12 @@ class Plus:
             all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
         elif output_mode == "regression":
             all_labels = torch.tensor([f.label for f in features], dtype=torch.float)
-        # elif output_mode == "terryner": #回归
-        #     # all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
-        #     all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
+        elif output_mode == "terryner": #回归
+            # all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
+            # print(features[1].label)
+            # print(features)
+            # print([f.label for f in features])
+            all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
 
         # print(all_labels)
         dataset = TensorDataset(all_input_ids, all_attention_mask, all_token_type_ids, all_lens, all_labels)
@@ -242,7 +246,8 @@ class Plus:
     def train(self,train_dataset, model, tokenizer):
         """ Train the model """
         args=self.args
-
+        # for all_input_ids, all_attention_mask, all_token_type_ids, all_lens, all_labels in   train_dataset:
+        #     print("len1",len(all_input_ids))
         args['per_gpu_train_batch_size'] = self.args['per_gpu_train_batch_size'] * max(1, self.args['n_gpu'])
         train_sampler = RandomSampler(train_dataset) if args['local_rank'] == -1 else DistributedSampler(train_dataset)
         train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=args['train_batch_size'],
@@ -280,18 +285,8 @@ class Plus:
             model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args['local_rank'] ],
                                                             output_device=args['local_rank'] ,
                                                             find_unused_parameters=True)
-
         # Train!
-        logger.info("***** Running training *****")
-        # logger.info("  Num examples = %d", len(train_dataset))
-        # logger.info("  Num Epochs = %d", args.num_train_epochs)
-        # logger.info("  Instantaneous batch size per GPU = %d", args.per_gpu_train_batch_size)
-        # logger.info("  Total train batch size (w. parallel, distributed & accumulation) = %d",
-        #             args.train_batch_size * args.gradient_accumulation_steps * (
-        #                 torch.distributed.get_world_size() if local_rank != -1 else 1))
-        # logger.info("  Gradient Accumulation steps = %d", args.gradient_accumulation_steps)
-        # logger.info("  Total optimization steps = %d", t_total)
-    
+ 
         global_step = 0
         tr_loss, logging_loss = 0.0, 0.0
         model.zero_grad()
@@ -302,12 +297,16 @@ class Plus:
 
             for step, batch in enumerate(train_dataloader):
                 # print(global_step)
-                # print(batch)
-
+                print(batch)
+                print(len(batch[0][0]))
+                print(len(batch[2][0]))
+                print(len(batch[3][0]))
+                # print(len(batch[3][0][:len(batch[0][0])]))
                 
                 model.train()
                 batch = tuple(t.to(self.args['device']) for t in batch)
                 with torch.no_grad():
+
                     if self.args['class_name']=='AlbertForSequenceClassification':
                         inputs = {'input_ids': batch[0],
                                 'attention_mask': batch[1],
@@ -315,6 +314,10 @@ class Plus:
                         if args['model_type'] != 'distilbert':
                             inputs['token_type_ids'] = batch[2] if args['model_type']  in ['bert', 'xlnet', 'albert',
                                                                                     'roberta'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
+                        # outputs = model(**inputs)   
+                        # loss, prediction_scores = outputs[:2]
+
+
                     elif self.args['class_name']=='AlbertForMaskedLM':  #lm
                         inputs = {'input_ids': batch[0],
                                 'attention_mask': batch[1],
@@ -324,6 +327,42 @@ class Plus:
                         if args['model_type'] != 'distilbert':
                             inputs['token_type_ids'] = batch[2] if args['model_type']  in ['bert', 'xlnet', 'albert',
                                                                                     'roberta'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
+                        r"""
+                            预测mask
+                            **masked_lm_labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size, sequence_length)``:
+                                Labels for computing the masked language modeling loss.
+                                Indices should be in ``[-1, 0, ..., config.vocab_size]`` (see ``input_ids`` docstring)
+                                Tokens with indices set to ``-1`` are ignored (masked), the loss is only computed for the tokens with labels
+                                in ``[0, ..., config.vocab_size]``
+
+                        Outputs: `Tuple` comprising various elements depending on the configuration (config) and inputs:
+                            **loss**: (`optional`, returned when ``masked_lm_labels`` is provided) ``torch.FloatTensor`` of shape ``(1,)``:
+                                Masked language modeling loss.
+                            **prediction_scores**: ``torch.FloatTensor`` of shape ``(batch_size, sequence_length, config.vocab_size)``
+                                Prediction scores of the language modeling head (scores for each vocabulary token before SoftMax).
+                            **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
+                                list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
+                                of shape ``(batch_size, sequence_length, hidden_size)``:
+                                Hidden-states of the model at the output of each layer plus the initial embedding outputs.
+                            **attentions**: (`optional`, returned when ``config.output_attentions=True``)
+                                list of ``torch.FloatTensor`` (one for each layer) of shape ``(batch_size, num_heads, sequence_length, sequence_length)``:
+                                Attentions weights after the attention softmax, used to compute the weighted average in the self-attention heads.
+
+                        Examples::
+
+                            tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+                            model = BertForMaskedLM.from_pretrained('bert-base-uncased')
+                            input_ids = torch.tensor(tokenizer.encode("Hello, my dog is cute")).unsqueeze(0)  # Batch size 1
+                            outputs = model(input_ids, masked_lm_labels=input_ids)
+                            loss, prediction_scores = outputs[:2]
+
+                        """
+                        # outputs = model(**inputs) 
+                        # loss, prediction_scores = outputs[:2]
+
+
+
+
                     elif self.args['class_name']=='AlbertForNextSentencePrediction': #下一句
                         inputs = {'input_ids': batch[0],
                                 'attention_mask': batch[1],
@@ -333,20 +372,75 @@ class Plus:
                         if args['model_type'] != 'distilbert':
                             inputs['token_type_ids'] = batch[2] if args['model_type']  in ['bert', 'xlnet', 'albert',
                                                                                     'roberta'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
+                        # outputs = model(**inputs)   
+                        # loss, prediction_scores = outputs[:2]           
+                        r"""
+                            预测下一句
+                            **next_sentence_label**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
+                                Labels for computing the next sequence prediction (classification) loss. Input should be a sequence pair (see ``input_ids`` docstring)
+                                Indices should be in ``[0, 1]``.
+                                ``0`` indicates sequence B is a continuation of sequence A,
+                                ``1`` indicates sequence B is a random sequence.
 
+                        Outputs: `Tuple` comprising various elements depending on the configuration (config) and inputs:
+                            **loss**: (`optional`, returned when ``next_sentence_label`` is provided) ``torch.FloatTensor`` of shape ``(1,)``:
+                                Next sequence prediction (classification) loss.
+                            **seq_relationship_scores**: ``torch.FloatTensor`` of shape ``(batch_size, sequence_length, 2)``
+                                Prediction scores of the next sequence prediction (classification) head (scores of True/False continuation before SoftMax).
+                            **hidden_states**: (`optional`, returned when ``config.output_hidden_states=True``)
+                                list of ``torch.FloatTensor`` (one for the output of each layer + the output of the embeddings)
+                                of shape ``(batch_size, sequence_length, hidden_size)``:
+                                Hidden-states of the model at the output of each layer plus the initial embedding outputs.
+                            **attentions**: (`optional`, returned when ``config.output_attentions=True``)
+                                list of ``torch.FloatTensor`` (one for each layer) of shape ``(batch_size, num_heads, sequence_length, sequence_length)``:
+                                Attentions weights after the attention softmax, used to compute the weighted average in the self-attention heads.
+
+                        Examples::
+
+                            tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+                            model = BertForNextSentencePrediction.from_pretrained('bert-base-uncased')
+                            input_ids = torch.tensor(tokenizer.encode("Hello, my dog is cute")).unsqueeze(0)  # Batch size 1
+                            outputs = model(input_ids)
+                            seq_relationship_scores = outputs[0]
+                        """
+         
 
                                                                                     
                     elif self.args['class_name']=='AlbertForMultipleChoice': #多分类
                         inputs = {'input_ids': batch[0],
                                 'attention_mask': batch[1],
-                                'masked_lm_labels':batch[0],
+                                # 'masked_lm_labels':batch[0],
                                 'labels': batch[3]
                                 }
                         if args['model_type'] != 'distilbert':
                             inputs['token_type_ids'] = batch[2] if args['model_type']  in ['bert', 'xlnet', 'albert',
                                                                                     'roberta'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
+                        # outputs = model(**inputs)   
+                        # loss, prediction_scores = outputs[:2]
+
 
                     elif self.args['class_name']=='AlbertForTokenClassification': #做ner
+                        inputs = {'input_ids': batch[0],
+                                    'attention_mask': batch[1],
+                                    # 'masked_lm_labels':batch[0],
+                                    'labels': batch[3]
+                                    }
+                        if args['model_type'] != 'distilbert':
+                            inputs['token_type_ids'] = batch[2] if args['model_type']  in ['bert', 'xlnet', 'albert',
+                                                                                    'roberta'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
+                        # outputs = model(input_ids= batch[0], labels= batch[3])
+ 
+
+                    elif self.args['class_name']=='AlbertForQuestionAnswering': #做ner
+                        # Examples::
+
+                        # tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+                        # model = BertForQuestionAnswering.from_pretrained('bert-base-uncased')
+                        # input_ids = torch.tensor(tokenizer.encode("Hello, my dog is cute")).unsqueeze(0)  # Batch size 1
+                        # start_positions = torch.tensor([1])
+                        # end_positions = torch.tensor([3])
+                        # outputs = model(input_ids, start_positions=start_positions, end_positions=end_positions)
+                        # loss, start_scores, end_scores = outputs[:2]
                         inputs = {'input_ids': batch[0],
                                 'attention_mask': batch[1],
                                 'masked_lm_labels':batch[0],
@@ -355,7 +449,8 @@ class Plus:
                         if args['model_type'] != 'distilbert':
                             inputs['token_type_ids'] = batch[2] if args['model_type']  in ['bert', 'xlnet', 'albert',
                                                                                     'roberta'] else None  # XLM, DistilBERT and RoBERTa don't use segment_ids
-
+                        # outputs = model(**inputs)
+                        # loss, scores = outputs[:2]
                 # #分类
                 # outputs = model(**inputs)
                 # loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
@@ -367,7 +462,7 @@ class Plus:
                 # outputs = model(input_ids, masked_lm_labels=input_ids)
                 # loss, prediction_scores = outputs[:2]
 
-                print(loss.item())
+                # print(loss.item())
 
                 if args['n_gpu'] > 1:
                     loss = loss.mean()  # mean() to average on multi-gpu parallel training
@@ -388,6 +483,7 @@ class Plus:
                     scheduler.step()  # Update learning rate schedule
                     model.zero_grad()
                     global_step += 1
+                pbar(step, {'loss': loss.item()})
 
                 # 验证保存
                 # if local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
@@ -410,7 +506,7 @@ class Plus:
             # torch.save(args, os.path.join(output_dir, 'training_args.bin'))
             logger.info("Saving model checkpoint to %s", output_dir)
             tokenizer.save_vocabulary(vocab_path=output_dir)
-            pbar(step, {'loss': loss.item()})
+            
             print(" ")
             # if 'cuda' in str(args.device):
             if args['device']=='cuda':
