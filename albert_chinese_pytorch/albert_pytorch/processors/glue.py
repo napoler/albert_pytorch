@@ -32,7 +32,7 @@ def collate_fn(batch):
     all_input_ids = all_input_ids[:, :max_len]
     all_attention_mask = all_attention_mask[:, :max_len]
     all_token_type_ids = all_token_type_ids[:, :max_len]
-    all_labels = all_labels[:, :max_len]
+    # all_labels = all_labels[:, :max_len]
     return all_input_ids, all_attention_mask, all_token_type_ids, all_labels
 
 
