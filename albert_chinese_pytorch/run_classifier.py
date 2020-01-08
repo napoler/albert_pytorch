@@ -44,7 +44,7 @@ from albert_pytorch import ProgressBar
 import time
 
 import matplotlib.pyplot as plt
-import Terry_toolkit as tkit
+import  tkitFile
 
 ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in (BertConfig,)), ())
 MODEL_CLASSES = {
@@ -57,7 +57,7 @@ def save_loss(loss,name="default"):
     保存loss 方便以后绘图分析
     """
     file_path="dataset/"+name+".json"
-    tjosn=tkit.Json(file_path=file_path)
+    tjosn=tkitFile.Json(file_path=file_path)
     one={"time":time.time(), 'loss':loss }
     tjosn.save([one])
 
