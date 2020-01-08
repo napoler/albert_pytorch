@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """ GLUE processors and helpers """
-import Terry_toolkit as tkit
+# import Terry_toolkit as tkit
+import  tkitFile
 import logging
 import os
 import torch
@@ -288,21 +289,21 @@ class TerrykgProcessor(DataProcessor):
         self.data_dir=data_dir
         file_path = os.path.join(self.data_dir,"train.json")
         # bulid_labels(self)
-        tjosn=tkit.Json(file_path=file_path).auto_load()
+        tjosn=tkitFile.Json(file_path=file_path).auto_load()
         return self._create_examples(tjosn, 'train')
     def get_dev_examples(self, data_dir):
         """See base class."""
         self.data_dir=data_dir
         file_path = os.path.join(self.data_dir,"dev.json")
         # bulid_labels(self,data_dir)
-        tjosn=tkit.Json(file_path=file_path).auto_load()
+        tjosn=tkitFile.Json(file_path=file_path).auto_load()
         return self._create_examples(tjosn, 'dev')
 
     def bulid_labels(self):
         """See base class　基于数据构建ｌａｂｅｌ词典."""
         # print("self.data_dir",self.data_dir)
         file_path = os.path.join(self.data_dir,"all_50_schemas.json")
-        data=tkit.Json(file_path=file_path).auto_load()
+        data=tkitFile.Json(file_path=file_path).auto_load()
         # tjson=tkit.Json(file_path=os.path.join('data/all_50_schemas.json'))
         # data= tjson.auto_load()
         # print(len(data))
@@ -369,15 +370,15 @@ class TerryProcessor(DataProcessor):
     def get_train_examples(self, data_dir):
         """See base class."""
         file_path = os.path.join(data_dir,"train.json")
-        tjosn=tkit.Json(file_path=file_path).load()
+        tjosn=tkitFile.Json(file_path=file_path).load()
         return self._create_examples(tjosn, 'train')
     def get_dev_examples(self, data_dir):
         """See base class."""
         file_path = os.path.join(data_dir,"dev.json")
-        tjosn=tkit.Json(file_path=file_path).load()
+        tjosn=tkitFile.Json(file_path=file_path).load()
         return self._create_examples(tjosn, 'dev')
     def make_labels(self):
-        tjosn=tkit.Json(file_path=self.data_dir+"/labels.json").auto_load()
+        tjosn=tkitFile.Json(file_path=self.data_dir+"/labels.json").auto_load()
         labels=[]
         for item in tjosn:
             labels.append(str(item['label']))
