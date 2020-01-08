@@ -41,7 +41,39 @@ def t_mlm():
             probs, indices = torch.topk(torch.softmax(prediction_scores[0, masked_index], -1), k)
             predicted_tokens = tokenizer.convert_ids_to_tokens(indices.tolist())
             print(predicted_tokens)
+
+
+def t_mlm_pre(text):
+    """
+    预测mask数据
+    """
+
+    P=Plus()
+    P.args['model_name_or_path']="prev_trained_model/albert_tiny"
+    P.args['class_name']="AlbertForMaskedLM"
+    model,tokenizer,config_class=P.load_model()
+
+    input_ids = torch.tensor(tokenizer.encode(text)).unsqueeze(0)  # Batch size 1
+    outputs = model(input_ids, masked_lm_labels=input_ids)
+    loss, prediction_scores = outputs[:2]
+    # print(loss, prediction_scores)
+    # p=torch.argmax(prediction_scores).item()
+    # masked_index=1
+
+    # for masked_index in range(len(text)):        
+    #     k = 10
+    #     probs, indices = torch.topk(torch.softmax(prediction_scores[0, masked_index], -1), k)
+    #     predicted_tokens = tokenizer.convert_ids_to_tokens(indices.tolist())
+    #     print(predicted_tokens)
+    masked_index =10
+    k = 10
+    probs, indices = torch.topk(torch.softmax(prediction_scores[0, masked_index], -1), k)
+    predicted_tokens = tokenizer.convert_ids_to_tokens(indices.tolist())
+    print(predicted_tokens)
 # t_mlm()
+text="[CLS] 今天将第一个维度消除，也就是将两个[3*4]矩阵只保留一个， [SEP] 因此要在两组中作比较，即将上下两个[3*4]的 [MASK]   [SEP]"
+t_mlm_pre(text)
+
 
 def t_wire(text):
     """
@@ -168,8 +200,8 @@ def t_mlm_train():
 #         # print(predicted_tokens)
 #     data=P.load_data(task_name,tokenizer)
 #     P.train(data, model, tokenizer)
-text="[CLS] 今天将第一个维度消除，也就是将两个[3*4]矩阵只保留一个， [SEP] 因此要在两组中作比较，即将上下两个[3*4]的 [MASK]   [SEP]"
-t_ner(text)
+# text="[CLS] 今天将第一个维度消除，也就是将两个[3*4]矩阵只保留一个， [SEP] 因此要在两组中作比较，即将上下两个[3*4]的 [MASK]   [SEP]"
+# t_ner(text)
 
 
 def load_data(task_name='terry'):
@@ -197,7 +229,7 @@ def load_data(task_name='terry'):
 
 
 # get_special_tokens_mask(text)
-load_data("terryner")
+# load_data("terryner")
  
 # print(tokenizer.encode(text+" [MASK]  "))
 # P=Plus()
