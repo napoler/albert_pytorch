@@ -180,6 +180,7 @@ def train(args, train_dataset, model, tokenizer):
                 logger.info("Saving model checkpoint to %s", output_dir)
                 tokenizer.save_vocabulary(vocab_path=output_dir)
             pbar(step, {'loss': loss.item()})
+            print('loss', loss.item())
 
         save_loss(loss=loss.item(),name=args.task_name)
         # #绘制图形

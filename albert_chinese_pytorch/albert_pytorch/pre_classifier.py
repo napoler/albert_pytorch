@@ -46,7 +46,7 @@ class classify:
         self.P.args['class_name']="AlbertForSequenceClassification"
         self.P.args['model_name_or_path']=model_name_or_path
         self.P.args['finetuning_task']=finetuning_task
-        self.model,self.tokenizer,self.config_class=P.load_model()
+        self.model,self.tokenizer,self.config_class=self.P.load_model()
     def pre(self,text):
         """
         这里进行预测结果
