@@ -515,7 +515,8 @@ def main():
     processor = processors[args.task_name]()
     args.output_mode = output_modes[args.task_name]
     label_list = processor.get_labels()
-    num_labels = len(label_list)
+    # num_labels = len(label_list)
+    num_labels = args.num_labels
 
     # Load pretrained model and tokenizer
     if args.local_rank not in [-1, 0]:
