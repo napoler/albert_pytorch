@@ -1,7 +1,9 @@
 CURRENT_DIR=`pwd`
 # export BERT_BASE_DIR=$CURRENT_DIR/prev_trained_model/albert_tiny
 #预训练模型位置
-export BERT_BASE_DIR=$CURRENT_DIR/prev_trained_model/terry_rank_output
+#export BERT_BASE_DIR=$CURRENT_DIR/prev_trained_model/terry_rank_output
+
+export BERT_BASE_DIR=$CURRENT_DIR/prev_trained_model/albert_base_zh
 #数据位置
 export DATA_DIR=$CURRENT_DIR/dataset
 #输出位置
@@ -40,9 +42,9 @@ do
       --do_eval \
       --do_lower_case \
       --data_dir=$DATA_DIR/${TASK_NAME}/ \
-      --max_seq_length=32 \
-      --per_gpu_train_batch_size=1512 \
-      --per_gpu_eval_batch_size=1512 \
+      --max_seq_length=100 \
+      --per_gpu_train_batch_size=512 \
+      --per_gpu_eval_batch_size=512 \
       --learning_rate=1e-8 \
       --num_train_epochs=20.0 \
       --logging_steps=3731 \
@@ -51,7 +53,7 @@ do
       --overwrite_output_dir
 
     #自动复制备份
-    
+
     # # mkdir $CURRENT_DIR/prev_trained_model/terry_rank_output.bak
     # mv  $BERT_BASE_DIR  $BERT_BASE_DIR.bak
 
@@ -59,18 +61,18 @@ do
     # # export BACKUP= $CURRENT_DIR/prev_trained_model/backup/${TASK_NAME}/${TIME}
     # # mkdir $CURRENT_DIR/prev_trained_model/backup/
 
-    
-      if [ ! -x "$CURRENT_DIR/prev_trained_model/backup/" ];then 
+
+      if [ ! -x "$CURRENT_DIR/prev_trained_model/backup/" ];then
       mkdir $CURRENT_DIR/prev_trained_model/backup/
-      fi 
+      fi
 
     mkdir $CURRENT_DIR/prev_trained_model/backup/${TASK_NAME}_${TIME}
     cp -r $BERT_BASE_DIR $CURRENT_DIR/prev_trained_model/backup/${TASK_NAME}_${TIME}
 
-    if [ ! -x "$BERT_BASE_DIR" ];then 
+    if [ ! -x "$BERT_BASE_DIR" ];then
     mkdir $BERT_BASE_DIR
-    fi 
-    
+    fi
+
     cp outputs/${TASK_NAME}_output/* $BERT_BASE_DIR
     #  cp outputs/${TASK_NAME}_output/* /content/drive/My\ Drive/fastai-v3/data/albert_pytorch_data/
     echo "休息10s"

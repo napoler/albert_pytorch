@@ -337,10 +337,13 @@ def load_and_cache_examples(args, task, tokenizer, data_type='train'):
     else:
         logger.info("Creating features from dataset file at %s", args.data_dir)
         label_list = processor.get_labels()
+
+
         if task in ['mnli', 'mnli-mm'] and 'roberta' in args.model_type:
             # HACK(label indices are swapped in RoBERTa pretrained model)
             label_list[1], label_list[2] = label_list[2], label_list[1]
-
+        if task in ['terry']:
+           label_list = processor.get_labels(args.num_labels)
         if data_type == 'train':
             examples = processor.get_train_examples(args.data_dir)
         elif data_type == 'dev':
@@ -371,6 +374,7 @@ def load_and_cache_examples(args, task, tokenizer, data_type='train'):
     all_token_type_ids = torch.tensor([f.token_type_ids for f in features], dtype=torch.long)
     all_lens = torch.tensor([f.input_len for f in features], dtype=torch.long)
     # print(all_token_type_ids)
+    # print([f.label for f in features],)
     if output_mode == "classification":
         all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
     elif output_mode == "regression":
@@ -379,7 +383,7 @@ def load_and_cache_examples(args, task, tokenizer, data_type='train'):
     #     # all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
     #     all_labels = torch.tensor([f.label for f in features], dtype=torch.long)
 
-    # print(all_labels)
+    # print("all_labels",all_labels)
     dataset = TensorDataset(all_input_ids, all_attention_mask, all_token_type_ids, all_lens, all_labels)
     return dataset
 
@@ -410,6 +414,8 @@ def main():
     parser.add_argument("--max_seq_length", default=128, type=int,
                         help="The maximum total input sequence length after tokenization. Sequences longer "
                              "than this will be truncated, sequences shorter will be padded.")
+    parser.add_argument("--num_labels", default=2, type=int,
+                        help="在设置成为terry时候 设置分类数目")
     parser.add_argument("--do_train", action='store_true',
                         help="Whether to run training.")
     parser.add_argument("--do_eval", action='store_true',

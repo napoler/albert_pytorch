@@ -45,7 +45,7 @@ def build_dataset(file,type="all"):
     k=0
     for item in tqdm(load_kg(file)):
         #排除掉大于100的文本
-        if len(" #u# ".join(item))>100:
+        if len(" #u# ".join(item))>30:
             continue
         elif  k==0:
             k=k+1
@@ -71,7 +71,7 @@ def build_dataset(file,type="all"):
                 i=i+1
             one={"label":0,'sentence':text}
             data.append(one)
-        if k%10000==0:
+        if k%2000000==0:
                 # print("***"*10)
             if type=="all":
                 pass

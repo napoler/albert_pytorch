@@ -89,7 +89,7 @@ class Plus:
             'data_dir': 'dataset/terry',
             'finetuning_task':'terry_test',
             'share_type':'all',
-            'num_labels':3,
+            'num_labels':2,
             'output_dir':"outputs/test"   }
         # model_path=''  
         # self.tokenizer = BertTokenizer.from_pretrained(model_path,   do_lower_case=False)

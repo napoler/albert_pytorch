@@ -13,7 +13,8 @@ albert_chinese_pytorch/prev_trained_model/backup
 albert_chinese_pytorch/prev_trained_model/terry_rank_output
 albert_chinese_pytorch/prev_trained_model/terry_output/*
 albert_chinese_pytorch/prev_trained_model
-
+albert_chinese_pytorch/prev_trained_model/*
+albert_chinese_pytorch/prev_trained_model/albert_tiny/*
 # Distribution / packaging
 .Python
 build/

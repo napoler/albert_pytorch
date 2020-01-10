@@ -26,7 +26,7 @@ albert_pytorch
 """
 setup(
     name='albert_pytorch',
-    version='0.0.1.2',
+    version='0.0.1.5',
     description='albert_pytorch',
     author='Terry Chan',
     author_email='napoler2008@gmail.com',

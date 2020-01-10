@@ -359,7 +359,7 @@ class TerryProcessor(DataProcessor):
     """Processor for 自定义数据集 10分类"""
     def __init__(self):
         self.data_dir='dataset/terry_rank'
-        self.make_labels()
+        # self.make_labels()
     def get_example_from_tensor_dict(self, tensor_dict):
         """See base class."""
         return InputExample(tensor_dict['idx'].numpy(),
@@ -384,11 +384,16 @@ class TerryProcessor(DataProcessor):
             labels.append(str(item['label']))
         self.labels=labels
 
-    def get_labels(self):
-        """See base class."""
+    def get_labels(self,n=3):
+        """See base class.
+        设置分类数目
+        """
         # return ["0", "1", "2", "3","4","5","6","7","8","9"]
         # return ["0", "1", "2", "3","4","5","6","7","8","9"]
-        return self.labels
+        # print("self.labels",self.labels)
+        # return self.labels
+        
+        return [i for i in range(n)]
  
 
     def _create_examples(self, lines, set_type):
@@ -398,10 +403,11 @@ class TerryProcessor(DataProcessor):
             guid = "%s-%s" % (set_type, i)
             text_a = line['sentence']
             label = line['label']
-            # print("label",label)
-            examples.append(
-                InputExample(guid=guid, text_a=str(text_a), text_b=None, label=str(label)))
-            # print("语料数量",len(examples))
+            if label in self.get_labels():
+                # print("label",label)
+                examples.append(
+                    InputExample(guid=guid, text_a=str(text_a), text_b=None, label=str(label)))
+                # print("语料数量",len(examples))
             
         return examples
 
