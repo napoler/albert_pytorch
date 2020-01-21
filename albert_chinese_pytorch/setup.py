@@ -23,13 +23,17 @@ albert_pytorch
 修正提交错误
 
 ####
+0.0.1.8
+
+Terry训练加入随机屏蔽数据15%
+
 0.0.1.7
 版本之前的请勿使用
 
 """
 setup(
     name='albert_pytorch',
-    version='0.0.1.7',
+    version='0.0.1.8',
     description='albert_pytorch',
     author='Terry Chan',
     author_email='napoler2008@gmail.com',

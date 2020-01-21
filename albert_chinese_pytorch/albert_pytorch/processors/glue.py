@@ -21,6 +21,8 @@ import os
 import torch
 from .utils import DataProcessor, InputExample, InputFeatures
 
+from random import sample
+
 logger = logging.getLogger(__name__)
 
 def collate_fn(batch):
@@ -91,6 +93,13 @@ def glue_convert_examples_to_features(examples, tokenizer,
             add_special_tokens=True,
             max_length=max_length
         )
+        
+        #自动屏蔽15%的文字信息
+        maskid=tokenizer.convert_tokens_to_ids("[MASK]")
+        for num in sample(range(1,len(inputs["input_ids"])),0.15*len(inputs["input_ids"])):
+           inputs["input_ids"][num] =maskid[0]
+        # text_a="".join(text_a)
+     
         input_ids, token_type_ids = inputs["input_ids"], inputs["token_type_ids"]
 
         # The mask has 1 for real tokens and 0 for padding tokens. Only real
@@ -402,12 +411,12 @@ class TerryProcessor(DataProcessor):
         for (i, line) in enumerate(lines):
             guid = "%s-%s" % (set_type, i)
             text_a = line['sentence']
-            text_a=list(text_a)
-            #自动屏蔽百分之15的数据
-            for num in sample(range(1,len(text_a)),0.15*len(text_a)):
-                text_a[num] ="[MASK]"
-            text_a="".join(text_a)
-            
+            # text_a=list(text_a)
+            # #自动屏蔽百分之15的数据
+            # for num in sample(range(1,len(text_a)),0.15*len(text_a)):
+            #     text_a[num] ="[MASK]"
+            # text_a="".join(text_a)
+
             label = line['label']
 
             # if it['label'] not in [0,1]:
