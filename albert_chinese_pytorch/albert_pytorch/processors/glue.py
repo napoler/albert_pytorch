@@ -96,7 +96,7 @@ def glue_convert_examples_to_features(examples, tokenizer,
         
         #自动屏蔽15%的文字信息
         maskid=tokenizer.convert_tokens_to_ids("[MASK]")
-        for num in sample(range(1,len(inputs["input_ids"])),0.15*len(inputs["input_ids"])):
+        for num in sample(range(1,len(inputs["input_ids"])),int(0.15*len(inputs["input_ids"]))):
            inputs["input_ids"][num] =maskid[0]
         # text_a="".join(text_a)
      
