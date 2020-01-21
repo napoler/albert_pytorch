@@ -22,11 +22,14 @@ albert_pytorch
 # fix
 修正提交错误
 
+####
+0.0.1.7
+版本之前的请勿使用
 
 """
 setup(
     name='albert_pytorch',
-    version='0.0.1.6',
+    version='0.0.1.7',
     description='albert_pytorch',
     author='Terry Chan',
     author_email='napoler2008@gmail.com',
@@ -35,13 +38,13 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=[
-        'Terry_toolkit==0.0.1.7.2',
-        'Flask==1.1.1',
+        # 'Terry_toolkit==0.0.1.7.2',
+        # 'Flask==1.1.1',
         'transformers==2.1.1'
 
 
     ],
-    packages=['albert_pytorch'])
+    packages=['albert_pytorch','albert_pytorch/callback','albert_pytorch/metrics','albert_pytorch/model','albert_pytorch/processors','albert_pytorch/tools'])
     # install_requires=[
     #     # asn1crypto==0.24.0
     #     # beautifulsoup4==4.7.1
