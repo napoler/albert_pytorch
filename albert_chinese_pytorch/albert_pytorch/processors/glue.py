@@ -93,7 +93,7 @@ def glue_convert_examples_to_features(examples, tokenizer,
             add_special_tokens=True,
             max_length=max_length
         )
-        
+
         #自动屏蔽15%的文字信息
         maskid=tokenizer.convert_tokens_to_ids("[MASK]")
         for num in sample(range(1,len(inputs["input_ids"])),int(0.15*len(inputs["input_ids"]))):
@@ -412,6 +412,8 @@ class TerryProcessor(DataProcessor):
         for (i, line) in enumerate(lines):
             guid = "%s-%s" % (set_type, i)
             text_a = line['sentence']
+            text_b = line.get('sentence_b')
+            
             # text_a=list(text_a)
             # #自动屏蔽百分之15的数据
             # for num in sample(range(1,len(text_a)),0.15*len(text_a)):
@@ -424,7 +426,7 @@ class TerryProcessor(DataProcessor):
             if label in self.get_labels():
                 # print("label",label)
                 examples.append(
-                    InputExample(guid=guid, text_a=str(text_a), text_b=None, label=str(label)))
+                    InputExample(guid=guid, text_a=str(text_a), text_b=text_b, label=str(label)))
                 # print("语料数量",len(examples))
             else:
                 continue
