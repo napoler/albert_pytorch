@@ -181,7 +181,7 @@ def train(args, train_dataset, model, tokenizer):
                 logger.info("Saving model checkpoint to %s", output_dir)
                 tokenizer.save_vocabulary(vocab_path=output_dir)
             pbar(step, {'loss': loss.item()})
-            loss_list.append(loss.item())
+            loss_list.append(floadt(loss.item()))
             loss_Average=sum(loss_list) / len(loss_list)
             print('loss平均',loss_Average)
         print('loss平均',loss_Average)
