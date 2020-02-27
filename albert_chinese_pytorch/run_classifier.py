@@ -182,7 +182,7 @@ def train(args, train_dataset, model, tokenizer):
                 tokenizer.save_vocabulary(vocab_path=output_dir)
             pbar(step, {'loss': loss.item()})
             try:
-                loss_list.append(float(loss.item()))
+                loss_list.append(loss.item())
                 print("loss_list",loss_list)
                 # loss_Average=sum(loss_list) / len(loss_list)
                 # print('loss平均',loss_Average)
@@ -192,7 +192,7 @@ def train(args, train_dataset, model, tokenizer):
         # print('loss平均',loss_Average)
         # save_loss(loss=loss_Average,name=args.task_name)
 
-        
+
         # #绘制图形
         # xs.append(i)
         # ys.append(loss.item())
