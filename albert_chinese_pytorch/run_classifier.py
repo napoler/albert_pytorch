@@ -183,13 +183,16 @@ def train(args, train_dataset, model, tokenizer):
             pbar(step, {'loss': loss.item()})
             try:
                 loss_list.append(float(loss.item()))
-                loss_Average=sum(loss_list) / len(loss_list)
-                print('loss平均',loss_Average)
+                print("loss_list",loss_list)
+                # loss_Average=sum(loss_list) / len(loss_list)
+                # print('loss平均',loss_Average)
             except:
                 print("转化错误")
                 pass
-        print('loss平均',loss_Average)
-        save_loss(loss=loss_Average,name=args.task_name)
+        # print('loss平均',loss_Average)
+        # save_loss(loss=loss_Average,name=args.task_name)
+
+        
         # #绘制图形
         # xs.append(i)
         # ys.append(loss.item())
