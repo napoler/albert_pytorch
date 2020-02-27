@@ -60,8 +60,11 @@ class Plus:
     """
     各种快速函数
     """
-    def __init__(self):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    def __init__(self,device="auto"):
+        if device=='auto':
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        else:
+            self.device=device
         self.args={
             'adam_epsilon':1e-8,
             'learning_rate':5e-5,
@@ -94,6 +97,18 @@ class Plus:
         # model_path=''  
         # self.tokenizer = BertTokenizer.from_pretrained(model_path,   do_lower_case=False)
         pass
+    def __del__(self):
+        # self.release()
+        pass
+
+    def release(self):
+        # print("释放显存")
+        # self.model.cpu()
+        torch.cuda.empty_cache()
+        pass
+        # torch.cuda.empty_cache()
+        # del self.model
+        # gc.collect()
     def load_model(self):
         """
         精简加载模型流程
@@ -118,8 +133,11 @@ class Plus:
         tokenizer = tokenizer_class.from_pretrained(self.args['model_name_or_path'],
                                                     do_lower_case=False)
         model = model_class.from_pretrained(self.args['model_name_or_path'], config=config)
-        model =model.to(self.device)
-        return model,tokenizer,config_class
+        self.model =model.to(self.device)
+        model.cpu()
+        del model
+        # self.model,self.tokenizer,self.config_class=model,tokenizer,config_class
+        return self.model,tokenizer,config_class
 
     
 

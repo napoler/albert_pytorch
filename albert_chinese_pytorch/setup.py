@@ -44,7 +44,7 @@ setup(
     install_requires=[
         # 'Terry_toolkit==0.0.1.7.2',
         # 'Flask==1.1.1',
-        'transformers==2.1.1'
+        'transformers==2.4.1'
 
 
     ],

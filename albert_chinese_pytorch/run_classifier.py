@@ -131,6 +131,7 @@ def train(args, train_dataset, model, tokenizer):
     for i in range(int(args.num_train_epochs)):
         logger.info("  epoch  = %d", i)
         pbar = ProgressBar(n_total=len(train_dataloader), desc='Training')
+        loss_list=[]
         for step, batch in enumerate(train_dataloader):
             model.train()
             batch = tuple(t.to(args.device) for t in batch)
@@ -180,9 +181,11 @@ def train(args, train_dataset, model, tokenizer):
                 logger.info("Saving model checkpoint to %s", output_dir)
                 tokenizer.save_vocabulary(vocab_path=output_dir)
             pbar(step, {'loss': loss.item()})
-            print('loss', loss.item())
-
-        save_loss(loss=loss.item(),name=args.task_name)
+            loss_list.append(loss.item())
+            loss_Average=sum(loss_list) / len(loss_list)
+            print('loss平均',loss_Average)
+        
+        save_loss(loss=loss_Average,name=args.task_name)
         # #绘制图形
         # xs.append(i)
         # ys.append(loss.item())

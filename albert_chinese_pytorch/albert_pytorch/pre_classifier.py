@@ -30,46 +30,90 @@ from .model.modeling_albert import BertConfig, AlbertForSequenceClassification
 from .model.tokenization_bert import BertTokenizer
 from.utils import *
 from .plus import *
-
-
+import gc
 class classify:
-    def __init__(self, model_name_or_path='outputs/terry_output',finetuning_task='finetuning_task',max_length=512):
+    def __init__(self, model_name_or_path='outputs/terry_output',finetuning_task='finetuning_task',max_length=512,num_labels=2,device='auto'):
         """
         使用模型进行分类操作
         """
+        
         self.model_name_or_path = model_name_or_path
         self.max_length = max_length
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if device=='auto':
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        else:
+            self.device=device
         print("device",self.device)
         #自动加载模型和词典
         self.P=Plus()
         self.P.args['class_name']="AlbertForSequenceClassification"
         self.P.args['model_name_or_path']=model_name_or_path
         self.P.args['finetuning_task']=finetuning_task
+        self.P.args['num_labels']=num_labels
+
         self.model,self.tokenizer,self.config_class=self.P.load_model()
+    def load_model(self):
+        self.model, self.tokenizer, self.config_class = self.P.load_model()
     def pre(self,text):
         """
         这里进行预测结果
         >>>pre(text)
         """
-        input_ids, token_type_ids=self.P.encode(text=text,tokenizer=self.tokenizer,max_length=self.max_length)
-        outputs = self.model(input_ids)
-        self.model.to(self.device)
-        # print(outputs)
-        self.seq_relationship_scores = outputs[0] #对应的概率信息
-        # print(seq_relationship_scores)
-        # print( torch.argmax(seq_relationship_scores).item())
-        # print(seq_relationship_scores)
+        # self.P.load_model()
+        # model, self.tokenizer, self.config_class = self.P.load_model()
+        with torch.no_grad():
 
-        # loss, logits = outputs[:2]
-        # print(outputs)
+            input_ids, token_type_ids=self.P.encode(text=text,tokenizer=self.tokenizer,max_length=self.max_length)
+            # print(input_ids)
+            self.model = self.model.to(self.device)
+            outputs = self.model(input_ids)
 
+            self.seq_relationship_scores = outputs[0].cpu() #对应的概率信息
+            # print(seq_relationship_scores)
+            # print( torch.argmax(seq_relationship_scores).item())
+            # print(seq_relationship_scores)
+
+            # loss, logits = outputs[:2]
+            # print(outputs)
+
+        input_ids=input_ids.cpu()
+        token_type_ids=token_type_ids.cpu()
+        del input_ids
+        del token_type_ids
+        del outputs
+
+        # torch.cuda.empty_cache()
+        self.P.release()
+        # torch.cuda.empty_cache()
         return torch.argmax(self.seq_relationship_scores).item()
+    def __del__(self):
+        """
+        释放多余的内存占用
+        """
+        # del self.seq_relationship_scores
+        # self.model.cpu()
+        # torch.cuda.empty_cache()
+        # gc.collect()
+        pass
+    def release(self):
+        """
+        释放多余的内存占用
+        """
+        # del self.seq_relationship_scores
+        print("释放显存")
+        self.model.cpu()
+        # print(torch.cuda.memory_cached())
+        # self.model.cpu()
+        self.P.release()
+        torch.cuda.empty_cache()
+        print(torch.cuda.memory_cached())
+        # del self.model
+        gc.collect()
     def softmax(self):
         """
         获取各种选项的打分
         """
-        s = torch.softmax(self.seq_relationship_scores,dim=1)  #指定求1范数  
+        s = torch.softmax(self.seq_relationship_scores,dim=1).cpu()  #指定求1范数
         # print(s[0].data.numpy().tolist())
         return s[0].data.numpy().tolist()
     # print("选项",'概率' )
