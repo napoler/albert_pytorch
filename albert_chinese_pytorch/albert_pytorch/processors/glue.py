@@ -99,7 +99,10 @@ def glue_convert_examples_to_features(examples, tokenizer,
         print(inputs["input_ids"])
         if len(inputs["input_ids"])>10:
             for num in sample(range(1,len(inputs["input_ids"])),int(0.15*len(inputs["input_ids"]))):
-                inputs["input_ids"][num] =maskid[0]
+                try:
+                    inputs["input_ids"][num] =maskid[0]
+                except:
+                    pass
                 # text_a="".join(text_a)
         
         input_ids, token_type_ids = inputs["input_ids"], inputs["token_type_ids"]
