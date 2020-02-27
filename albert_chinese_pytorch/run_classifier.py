@@ -184,7 +184,7 @@ def train(args, train_dataset, model, tokenizer):
             loss_list.append(loss.item())
             loss_Average=sum(loss_list) / len(loss_list)
             print('loss平均',loss_Average)
-        
+        print('loss平均',loss_Average)
         save_loss(loss=loss_Average,name=args.task_name)
         # #绘制图形
         # xs.append(i)
