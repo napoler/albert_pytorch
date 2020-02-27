@@ -181,9 +181,13 @@ def train(args, train_dataset, model, tokenizer):
                 logger.info("Saving model checkpoint to %s", output_dir)
                 tokenizer.save_vocabulary(vocab_path=output_dir)
             pbar(step, {'loss': loss.item()})
-            loss_list.append(float(loss.item()))
-            loss_Average=sum(loss_list) / len(loss_list)
-            print('loss平均',loss_Average)
+            try:
+                loss_list.append(float(loss.item()))
+                loss_Average=sum(loss_list) / len(loss_list)
+                print('loss平均',loss_Average)
+            except:
+                print("转化错误")
+                pass
         print('loss平均',loss_Average)
         save_loss(loss=loss_Average,name=args.task_name)
         # #绘制图形
