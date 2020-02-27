@@ -96,10 +96,11 @@ def glue_convert_examples_to_features(examples, tokenizer,
         
         #自动屏蔽15%的文字信息
         maskid=tokenizer.convert_tokens_to_ids("[MASK]")
-        for num in sample(range(1,len(inputs["input_ids"])),0.15*len(inputs["input_ids"])):
-           inputs["input_ids"][num] =maskid[0]
-        # text_a="".join(text_a)
-     
+        if len(inputs["input_ids"])>3:
+            for num in sample(range(1,len(inputs["input_ids"])),0.15*len(inputs["input_ids"])):
+                inputs["input_ids"][num] =maskid[0]
+                # text_a="".join(text_a)
+        
         input_ids, token_type_ids = inputs["input_ids"], inputs["token_type_ids"]
 
         # The mask has 1 for real tokens and 0 for padding tokens. Only real
