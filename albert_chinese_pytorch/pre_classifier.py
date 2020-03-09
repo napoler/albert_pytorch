@@ -32,7 +32,7 @@ def dev():
         # text="我把小狗宠坏了，现在的小狗已经长大，一直追着兔子跑！"
         text=item['sentence']
         # tclass=classify(model_name_or_path='prev_trained_model/terry_rank_output')
-        tclass = classify(model_name_or_path='prev_trained_model/terry_rank_output',num_labels=3,device='cuda')
+        tclass = classify(model_name_or_path='prev_trained_model/terry_rank_output',num_labels=4,device='cuda')
         if tclass.pre(text)<3:
             print(item)
             print("预测结果",tclass.pre(text))

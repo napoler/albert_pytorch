@@ -33,7 +33,7 @@ albert_pytorch
 """
 setup(
     name='albert_pytorch',
-    version='0.0.1.9',
+    version='0.0.2.0',
     description='albert_pytorch',
     author='Terry Chan',
     author_email='napoler2008@gmail.com',
