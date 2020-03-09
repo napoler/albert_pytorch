@@ -416,6 +416,7 @@ class TerryProcessor(DataProcessor):
         for (i, line) in enumerate(lines):
             guid = "%s-%s" % (set_type, i)
             text_a = line['sentence']
+            text_b=line.get("sentence_b")
             # text_a=list(text_a)
             # #自动屏蔽百分之15的数据
             # for num in sample(range(1,len(text_a)),0.15*len(text_a)):
@@ -428,7 +429,7 @@ class TerryProcessor(DataProcessor):
             if label in self.get_labels():
                 # print("label",label)
                 examples.append(
-                    InputExample(guid=guid, text_a=str(text_a), text_b=None, label=str(label)))
+                    InputExample(guid=guid, text_a=str(text_a), text_b=str(text_b), label=str(label)))
                 # print("语料数量",len(examples))
             else:
                 continue
