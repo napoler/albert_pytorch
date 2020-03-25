@@ -54,7 +54,7 @@ class classify:
         self.model,self.tokenizer,self.config_class=self.P.load_model()
     def load_model(self):
         self.model, self.tokenizer, self.config_class = self.P.load_model()
-    def pre(self,text):
+    def pre_r(self,text,text_b=None):
         """
         这里进行预测结果
         >>>pre(text)
@@ -62,11 +62,50 @@ class classify:
         # self.P.load_model()
         # model, self.tokenizer, self.config_class = self.P.load_model()
         with torch.no_grad():
-
+            # 处理两句话的判断操作
+            if text_b !=None:
+                text=text+" [EPS] "+text_b
             input_ids, token_type_ids=self.P.encode(text=text,tokenizer=self.tokenizer,max_length=self.max_length)
             # print(input_ids)
             self.model = self.model.to(self.device)
             outputs = self.model(input_ids)
+            # print("outputs",outputs)
+
+            self.seq_relationship_scores = outputs[0].cpu() #对应的概率信息
+            # print(seq_relationship_scores)
+            # print( torch.argmax(seq_relationship_scores).item())
+            # print(seq_relationship_scores)
+
+            # loss, logits = outputs[:2]
+            # print(outputs)
+
+        input_ids=input_ids.cpu()
+        token_type_ids=token_type_ids.cpu()
+        del input_ids
+        del token_type_ids
+        del outputs
+
+        # torch.cuda.empty_cache()
+        self.P.release()
+        # torch.cuda.empty_cache()
+        # return torch.argmax(self.seq_relationship_scores).item()
+        return  self.seq_relationship_scores
+    def pre(self,text,text_b=None):
+        """
+        这里进行预测结果
+        >>>pre(text)
+        """
+        # self.P.load_model()
+        # model, self.tokenizer, self.config_class = self.P.load_model()
+        with torch.no_grad():
+            # 处理两句话的判断操作
+            if text_b !=None:
+                text=text+" [EPS] "+text_b
+            input_ids, token_type_ids=self.P.encode(text=text,tokenizer=self.tokenizer,max_length=self.max_length)
+            # print(input_ids)
+            self.model = self.model.to(self.device)
+            outputs = self.model(input_ids)
+            # print("outputs",outputs)
 
             self.seq_relationship_scores = outputs[0].cpu() #对应的概率信息
             # print(seq_relationship_scores)
@@ -86,6 +125,16 @@ class classify:
         self.P.release()
         # torch.cuda.empty_cache()
         return torch.argmax(self.seq_relationship_scores).item()
+
+    def pre_two(self,text,text_b):
+        """
+        对两句话预测
+        """
+        return self.pre(text+" [EPS] "+text_b)
+
+    def ppl(self,text):
+        self.model = self.model.to(self.device)
+        return self.P.get_ppl(text,self.tokenizer,self.model)
     def __del__(self):
         """
         释放多余的内存占用

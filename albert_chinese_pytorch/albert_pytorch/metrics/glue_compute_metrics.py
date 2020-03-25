@@ -63,6 +63,8 @@ def compute_metrics(task_name, preds, labels):
         return acc_and_f1(preds, labels)
     elif task_name == "terry":
         return {"acc": simple_accuracy(preds, labels)}
+    elif task_name == "terry_r":
+        return pearson_and_spearman(preds, labels)
         # return acc_and_f1(preds, labels)
     elif task_name == "sts-b":
         return pearson_and_spearman(preds, labels)

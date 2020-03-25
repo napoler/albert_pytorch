@@ -29,11 +29,13 @@ albert_pytorch
 适用于所有数据
 0.0.1.7
 版本之前的请勿使用
+0.0.2.1
+加入处理两句话的判断操作
 
 """
 setup(
     name='albert_pytorch',
-    version='0.0.2.0',
+    version='0.0.2.1.1',
     description='albert_pytorch',
     author='Terry Chan',
     author_email='napoler2008@gmail.com',

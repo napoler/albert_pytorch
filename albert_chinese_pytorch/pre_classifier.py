@@ -14,7 +14,7 @@ def bulid_labels():
     data=[{"label": 0, "sentence": "小于2000"},{"label": 1, "sentence":"2000-1万"},{"label": 2, "sentence": "大于1万"}]
     tjosn.save(data)
 def dev():
-    file_path="dataset/terry_rank/dev.json"
+    file_path="dataset/terry_r_rank/dev.json"
     tjosn=tkit.Json(file_path=file_path).auto_load()
     n=0
     all=1
@@ -32,43 +32,48 @@ def dev():
         # text="我把小狗宠坏了，现在的小狗已经长大，一直追着兔子跑！"
         text=item['sentence']
         # tclass=classify(model_name_or_path='prev_trained_model/terry_rank_output')
-        tclass = classify(model_name_or_path='prev_trained_model/terry_rank_output',num_labels=4,device='cuda')
-        if tclass.pre(text)<3:
-            print(item)
-            print("预测结果",tclass.pre(text))
-            all=all+1
-            if tclass.pre(text)==item["label"]:
-                n=n+1
-            # print("总共预测",all)
-            # print("准确数目",n)
-            # print("准确率",n/all)
-        # data.append((all,n))
-        xs.append(all)
-        ys.append(n/all)
-        if all%10==0:
-                    # 清除原有图像
-            plt.cla()
+        tclass = classify(model_name_or_path='outputs/terry_r_rank/',num_labels=1,device='cuda')
+        p=tclass.pre_r(text)
+        print(item["label"],p.tolist()[0][0])
+        # print(p.softmax())
+    #     if tclass.pre(text)<3:
+    #         print(item)
 
-            # 设定标题等
-            # plt.title("动态曲线图", fontproperties=myfont)
-            plt.grid(True)
-            plt.plot(xs, ys)
-            # 暂停
-            plt.pause(0.1)
-            plt.show()
-        #     plot_dev(xs,ys)
+    #         print("预测结果",p)
+    #         # print("预测结果",p.softmax())
+    #         all=all+1
+    #         if p==item["label"]:
+    #             n=n+1
+    #         # print("总共预测",all)
+    #         # print("准确数目",n)
+    #         # print("准确率",n/all)
+    #     # data.append((all,n))
+    #     xs.append(all)
+    #     ys.append(n/all)
+    #     if all%10==0:
+    #                 # 清除原有图像
+    #         plt.cla()
+
+    #         # 设定标题等
+    #         # plt.title("动态曲线图", fontproperties=myfont)
+    #         plt.grid(True)
+    #         plt.plot(xs, ys)
+    #         # 暂停
+    #         plt.pause(0.1)
+    #         plt.show()
+    #     #     plot_dev(xs,ys)
         
-    # plot_dev(xs,ys)
-    print("####"*30)
-    print("总共预测",all)
-    print("准确数目",n)
-    print("准确率",n/all)
+    # # plot_dev(xs,ys)
+    # print("####"*30)
+    # print("总共预测",all)
+    # print("准确数目",n)
+    # print("准确率",n/all)
  
 
-    # 关闭交互模式
-    plt.ioff()
-    # 图形显示
-    plt.show()    
+    # # 关闭交互模式
+    # plt.ioff()
+    # # 图形显示
+    # plt.show()    
 
 
 

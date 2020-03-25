@@ -260,7 +260,28 @@ class Plus:
         # print(all_labels)
         dataset = TensorDataset(all_input_ids, all_attention_mask, all_token_type_ids, all_lens, all_labels)
         return dataset
-
+    def get_ppl(self,text,tokenizer,model):
+        """
+        获取ppl
+        语句流畅度
+        """
+        with torch.no_grad():
+            loss_all=0
+            text_list=list(text)
+            for i ,w in enumerate(text_list):
+                text_list[i]='[MASK]'
+                # print(text_list)
+                input_ids, token_type_ids=self.encode(''.join(text_list),tokenizer)
+                text_list[i]=w
+                outputs = self.model(input_ids)
+                loss = outputs[0]  # model outputs are always tuple in transformers (see doc)
+                loss = loss.mean()
+                loss_all=loss_all+loss
+            ppl =torch.exp(loss/len(text)).item()
+            # print(ppl)
+            return ppl
+            # self.model = self.model.to(self.device)
+        pass
     def train(self,train_dataset, model, tokenizer):
         """ Train the model """
         args=self.args

@@ -940,6 +940,7 @@ glue_tasks_num_labels = {
     "mnli": 3,
     "mrpc": 2,
     "terry": 2,
+    "terry_r": 1,
     "sst-2": 2,
     "sts-b": 1,
     "qqp": 2,
@@ -955,6 +956,7 @@ glue_processors = {
     "cola": ColaProcessor,
     "mnli": MnliProcessor,
     "terry": TerryProcessor,
+    "terry_r": TerryProcessor,
     "terrykg": TerrykgProcessor,
     "terryner": TerryNerProcessor,
     "mnli-mm": MnliMismatchedProcessor,
@@ -974,6 +976,7 @@ glue_processors = {
 glue_output_modes = {
     "cola": "classification",
     "terry": "classification",
+    "terry_r": "regression",
     "terrykg": "classification",
     "terryner": "terryner",
     "mnli": "classification",

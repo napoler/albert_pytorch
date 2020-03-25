@@ -964,6 +964,7 @@ class AlbertForSequenceClassification(AlbertPreTrainedModel):
 class AlbertForMultipleChoice(AlbertPreTrainedModel):
     r"""
         多选择
+        做类似选择题https://www.zhihu.com/question/21985530
         **labels**: (`optional`) ``torch.LongTensor`` of shape ``(batch_size,)``:
             Labels for computing the multiple choice classification loss.
             Indices should be in ``[0, ..., num_choices]`` where `num_choices` is the size of the second dimension
