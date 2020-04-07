@@ -68,7 +68,7 @@ class classify:
             input_ids, token_type_ids=self.P.encode(text=text,tokenizer=self.tokenizer,max_length=self.max_length)
             # print(input_ids)
             self.model = self.model.to(self.device)
-            outputs = self.model(input_ids)
+            outputs = self.model(input_ids.to(self.device))
             # print("outputs",outputs)
 
             self.seq_relationship_scores = outputs[0].cpu() #对应的概率信息
